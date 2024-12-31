@@ -4,13 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://yun-narae.github.io/",
-
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "pocketbase": "pocketbase/pocketbase serve",
     "build:css": "tailwindcss -i ./src/styles/input.css -o ./dist/output.css",
     "start": "npm run dev & npm run build:css",
     "predeploy": "npm run build",
@@ -19,6 +17,7 @@
   "dependencies": {
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
+    "p": "^0.2.0",
     "pocketbase": "^0.24.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
