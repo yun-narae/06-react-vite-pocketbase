@@ -6,7 +6,7 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/06-react-vite-pocketbase/',
   css: {
     postcss: {
       plugins: [tailwindcss()],
