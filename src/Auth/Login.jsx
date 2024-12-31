@@ -12,7 +12,7 @@ function Login({ setIsLoggedIn }) {
     const isLoggedInStatus = pb.authStore.isValid;
 
     useEffect(() => {
-        if (isLoggedInStatus) navigate("/");
+        if (isLoggedInStatus) navigate("/06-react-vite-pocketbase/");
     }, [isLoggedInStatus, navigate]);
 
     async function login(data) {
@@ -24,7 +24,7 @@ function Login({ setIsLoggedIn }) {
                 .authWithPassword(data.email, data.password);
             setIsLoggedIn(true);
             localStorage.setItem("isLoggedIn", "true");
-            navigate("/"); // 로그인 후 홈으로 이동
+            navigate("/06-react-vite-pocketbase/"); // 로그인 후 홈으로 이동
         } catch (e) {
             setApiError("Invalid credentials or error occurred."); // 로그인 실패 시 오류 메시지 설정
         }

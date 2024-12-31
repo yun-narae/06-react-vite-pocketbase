@@ -9,7 +9,7 @@ const RegistrationSuccess = () => {
       <h1 className="text-2xl mb-4">회원가입이 완료되었습니다!</h1>
       <button
         className="border rounded-md bg-blue-600 text-white py-2 px-3"
-        onClick={() => navigate("/login")}
+        onClick={() => navigate("/06-react-vite-pocketbase/login")}
       >
         로그인 하러가기
       </button>

@@ -15,7 +15,7 @@ const Home = ({ isLoggedIn, setIsLoggedIn }) => {
   // 로그인 상태에 따라 페이지 리디렉션
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/"); // 이미 로그인 상태이면 홈 페이지로 리디렉션
+      navigate("/06-react-vite-pocketbase/"); // 이미 로그인 상태이면 홈 페이지로 리디렉션
     }
   }, [isLoggedIn, navigate]);
 

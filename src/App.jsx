@@ -43,18 +43,18 @@ function App() {
                 setDarkMode={setDarkMode} 
             />
             <Routes>
-                <Route path="/" element={<Layout />}>
+                <Route path="/06-react-vite-pocketbase/" element={<Layout />}>
                     <Route
                         index
                         element={<Home isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
                     />
                     <Route
-                        path="/login"
+                        path="/06-react-vite-pocketbase/login"
                         element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
                     />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/registration-success" element={<RegistrationSuccess />} />
-                    <Route path="/fileList" element={<FileList />} />
+                    <Route path="/06-react-vite-pocketbase/register" element={<Register />} />
+                    <Route path="/06-react-vite-pocketbase/registration-success" element={<RegistrationSuccess />} />
+                    <Route path="/06-react-vite-pocketbase/fileList" element={<FileList />} />
                 </Route>
             </Routes>
         </Router>

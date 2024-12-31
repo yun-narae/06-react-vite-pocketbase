@@ -11,24 +11,24 @@ function Header({ isLoggedIn, isdarkMode, setDarkMode }) {
         <nav className="fixed w-full p-4 bg-blue-500 dark:bg-gray-800">
             <ul className="flex gap-4 items-center text-white">
                 <li>
-                    <Link to="/" className="hover:underline">
+                    <Link to="/06-react-vite-pocketbase/" className="hover:underline">
                         Home
                     </Link>
                 </li>
                 <li>
-                    <Link to="/fileList" className="hover:underline">
+                    <Link to="/06-react-vite-pocketbase/fileList" className="hover:underline">
                         FileList
                     </Link>
                 </li>
                 {!isLoggedIn && (
                     <>
                         <li>
-                            <Link to="/login" className="hover:underline">
+                            <Link to="/06-react-vite-pocketbase/login" className="hover:underline">
                                 Login
                             </Link>
                         </li>
                         <li>
-                            <Link to="/register" className="hover:underline">
+                            <Link to="/06-react-vite-pocketbase/register" className="hover:underline">
                                 Register
                             </Link>
                         </li>
