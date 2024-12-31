@@ -1,5 +1,6 @@
-import PocketBase from 'pocketbase'; // PocketBase SDK 임포트 예시
+import PocketBase from 'pocketbase';
 
-const pb = new PocketBase('http://127.0.0.1:8090'); // PocketBase 인스턴스 생성
+const pb = new PocketBase(import.meta.env.VITE_PB_URL);
+pb.autoCancellation(false);
 
-export default pb; // default export로 내보냄
+export default pb;
