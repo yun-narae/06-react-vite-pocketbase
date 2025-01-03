@@ -8,8 +8,8 @@ function Header({ isLoggedIn, isdarkMode, setDarkMode }) {
     };
 
     return (
-        <nav className="fixed w-full p-4 bg-blue-500 dark:bg-gray-800">
-            <ul className="flex gap-4 items-center text-white">
+        <nav className="fixed w-full p-4 bg-gray-200 dark:bg-gray-800">
+            <ul className="flex gap-4 items-center text-black dark:text-white">
                 <li>
                     <Link to="/06-react-vite-pocketbase/" className="hover:underline">
                         Home
@@ -36,15 +36,15 @@ function Header({ isLoggedIn, isdarkMode, setDarkMode }) {
                 )}
                 {isLoggedIn && user && (
                     <li>
-                        <p>{user.name}님 안녕하세요</p>
+                        <p className="whitespace-nowrap">{user.name}님</p>
                     </li>
                 )}
                 <li>
                     <button
                         onClick={toggleDarkMode}
-                        className="mt-4 px-4 py-2 bg-blue-500 dark:bg-blue-700 text-white rounded"
+                        className="px-4 py-2 bg-gray-300 border border-stone-400 dark:bg-gray-700 dark:border-gray-900 text-white rounded"
                     >
-                        {isdarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                        {isdarkMode ? "Light" : "Dark"}
                     </button>
                 </li>
             </ul>

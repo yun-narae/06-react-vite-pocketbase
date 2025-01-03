@@ -29,12 +29,12 @@ const FileList = () => {
     if (!fileData.length) return <p>No files available.</p>;
 
     return (
-        <div className="mt-6">
+        <>
             <h2 className="sr-only">제품 리스트</h2>
             <ul className="grid grid-cols-2 gap-2 md:gap-4 md:mb-6 md:grid-cols-4 lg:gap-6 lg:col-start-2 lg:row-end-6 lg:row-span-6 lg:mb-0">
                 {fileData.map((file, index) => (
-                    <li key={index} className="cursor-pointer">
-                        <figure className="rounded-xl overflow-hidden mb-2">
+                    <li key={index} className="cursor-pointer overflow-hidden">
+                        <figure className="rounded-xl overflow-hidden mb-2 flex items-center h-[180px] md:h-[240px] lg:h-[320px]">
                             <img src={file.imageUrl} alt={file.name} className="w-full" />
                             {/* isLoggedIn으로 로그인 되어있다면 a링크 통해서 상세로 없으면 로그인 하는 페이지로*/}
                         </figure>
@@ -45,7 +45,7 @@ const FileList = () => {
                     </li>
                 ))}
             </ul>
-        </div>
+        </>
     );
 };
 
