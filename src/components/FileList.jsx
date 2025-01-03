@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
+import FileListSkeleton from "./FileListSkeleton"; // import the skeleton component
 
 const FileList = () => {
     const [fileData, setFileData] = useState([]);
@@ -25,7 +26,13 @@ const FileList = () => {
         fetchFiles();
     }, []);
 
-    if (!fileData.length) return <p>No files available.</p>;
+    if (isLoading) {
+        return <FileListSkeleton />; // Show skeleton UI while loading
+    }
+
+    if (!fileData.length) {
+        return <p>No files available.</p>;
+    }
 
     return (
         <>
@@ -43,7 +50,6 @@ const FileList = () => {
                                 height="800px"
                                 className="w-full"
                                 />
-                            {/* isLoggedIn으로 로그인 되어있다면 a링크 통해서 상세로 없으면 로그인 하는 페이지로*/}
                         </figure>
                         <div className="flex flex-col">
                             <span className="text-sm font-bold dark:text-white">{file.name}</span>
