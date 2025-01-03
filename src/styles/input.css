@@ -6,4 +6,7 @@
   .skeleton {
     @apply animate-shimmer bg-gradient-custom bg-custom;
   }
+  .skeleton-dark {
+    @apply animate-shimmer bg-gradient-custom-dark bg-custom;
+  }
 }
