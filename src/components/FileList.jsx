@@ -25,7 +25,6 @@ const FileList = () => {
         fetchFiles();
     }, []);
 
-    if (isLoading) return <p>Loading files...</p>;
     if (!fileData.length) return <p>No files available.</p>;
 
     return (
@@ -35,7 +34,15 @@ const FileList = () => {
                 {fileData.map((file, index) => (
                     <li key={index} className="cursor-pointer overflow-hidden">
                         <figure className="rounded-xl overflow-hidden mb-2 flex items-center h-[180px] md:h-[240px] lg:h-[320px]">
-                            <img src={file.imageUrl} alt={file.name} className="w-full" />
+                            <img 
+                                src={file.imageUrl} 
+                                alt={file.name} 
+                                loading="lazy"
+                                decoding="async"
+                                width="800px"
+                                height="800px"
+                                className="w-full"
+                                />
                             {/* isLoggedIn으로 로그인 되어있다면 a링크 통해서 상세로 없으면 로그인 하는 페이지로*/}
                         </figure>
                         <div className="flex flex-col">
