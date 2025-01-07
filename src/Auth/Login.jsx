@@ -3,7 +3,7 @@ import pb from "../lib/pocketbase";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-function Login({ setIsLoggedIn }) {
+function Login({ setIsLoggedIn, setLoggedInUserId }) {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [isLoading, setLoading] = useState(false);
     const [apiError, setApiError] = useState(""); // API 에러 메시지 상태 추가
@@ -12,23 +12,37 @@ function Login({ setIsLoggedIn }) {
     const isLoggedInStatus = pb.authStore.isValid;
 
     useEffect(() => {
-        if (isLoggedInStatus) navigate("/06-react-vite-pocketbase/");
+        if (isLoggedInStatus) {
+            // 로그인 상태라면 홈으로 리다이렉트
+            navigate("/06-react-vite-pocketbase/");
+        }
     }, [isLoggedInStatus, navigate]);
 
     async function login(data) {
         setLoading(true);
         setApiError(""); // 에러 초기화
         try {
+            // PocketBase 로그인 요청
             const authData = await pb
                 .collection("users")
                 .authWithPassword(data.email, data.password);
+
+            const userId = authData.record.id; // 로그인된 사용자 ID
+
+            // 로그인 상태 업데이트
             setIsLoggedIn(true);
-            localStorage.setItem("isLoggedIn", "true");
-            navigate("/06-react-vite-pocketbase/"); // 로그인 후 홈으로 이동
+            setLoggedInUserId(userId); // 사용자 ID 상태 업데이트
+            localStorage.setItem("isLoggedIn", "true"); // 로그인 상태 저장
+            localStorage.setItem("loggedInUserId", userId); // 사용자 ID 저장
+
+            // 로그인 후 홈으로 이동
+            navigate("/06-react-vite-pocketbase/");
         } catch (e) {
-            setApiError("Invalid credentials or error occurred."); // 로그인 실패 시 오류 메시지 설정
+            // 로그인 실패 시 에러 메시지 설정
+            setApiError("Invalid credentials or error occurred.");
+        } finally {
+            setLoading(false); // 로딩 상태 해제
         }
-        setLoading(false);
     }
 
     return (
