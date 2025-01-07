@@ -20,6 +20,12 @@ function Header({ isLoggedIn, isdarkMode, setDarkMode }) {
                         FileList
                     </Link>
                 </li>
+                <li>
+                    <Link to="/06-react-vite-pocketbase/favorites" className="hover:underline">
+                        FavoriteFiles
+                    </Link>
+                </li>
+                
                 {!isLoggedIn && (
                     <>
                         <li>
