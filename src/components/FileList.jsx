@@ -26,6 +26,7 @@ const FileList = () => {
             try {
                 const files = await pb.collection("files").getFullList(1, { autoCancel: false });
                 setFileData(files.map(file => ({
+                    id: file.id, // file.id 추가
                     imageUrl: getPbImageURL(file, "photo"),
                     name: file.name || "No name",
                     price: file.price || 0,
