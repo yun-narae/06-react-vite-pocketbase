@@ -49,25 +49,29 @@ function App() {
         localStorage.setItem("loggedInUserId", loggedInUserId);
     }, [loggedInUserId]);
 
+
     const handleLogout = () => {
         // PocketBase 인증 상태 초기화
         pb.authStore.clear(); 
     
-        // 유지하려는 데이터를 저장
+        // 유지하려는 데이터를 저장 (찜 목록)
         const favoritesKey = `favorites_${loggedInUserId}`;
         const savedFavorites = localStorage.getItem(favoritesKey);
     
-        // localStorage 초기화
-        localStorage.clear(); 
+        // localStorage에서 특정 항목들만 초기화
+        localStorage.removeItem('loggedInUserId');
+        localStorage.removeItem('isdarkMode');
+        localStorage.removeItem('pocketbase_auth');
     
-        // 저장한 데이터를 다시 설정
-        if (savedFavorites) {
-            localStorage.setItem(favoritesKey, savedFavorites);
-        }
-    
-        // 상태 초기화
+        // 로그인 상태 초기화
         setIsLoggedIn(false);
         setLoggedInUserId(null);
+    
+        // 찜 목록 데이터가 있다면, 다시 로그인할 때 저장할 수 있도록 설정
+        if (savedFavorites) {
+            // 로그인할 때 해당 키로 찜 목록을 다시 저장
+            localStorage.setItem(favoritesKey, savedFavorites); // key와 value를 정확히 지정
+        }
     };
 
     return (
