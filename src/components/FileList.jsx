@@ -38,15 +38,17 @@ const FileList = ({ loggedInUserId }) => {
                     price: file.price || 0,
                 }));
                 setFileData(formattedFiles);
+                // 파일 데이터를 로컬 스토리지에 저장
+                localStorage.setItem("fileData", JSON.stringify(formattedFiles));
             } catch (error) {
                 console.error("Error fetching files:", error);
             } finally {
                 setIsLoading(false);
             }
         };
-
+    
         fetchFiles();
-    }, []);
+    }, []);    
 
     if (isLoading) {
         return <FileListSkeleton />; // Show skeleton UI while loading
