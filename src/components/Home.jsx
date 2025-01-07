@@ -2,15 +2,15 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import pb from "../lib/pocketbase";
 
-const Home = ({ isLoggedIn, setIsLoggedIn }) => {
+const Home = ({ isLoggedIn, isdarkMode, setDarkMode, onLogout  }) => {
   const navigate = useNavigate();
 
-  // 로그아웃 처리 함수
-  function logout() {
-    pb.authStore.clear(); // 로그아웃 처리
-    setIsLoggedIn(false); // 로그인 상태 업데이트
-    localStorage.removeItem("isLoggedIn"); // 로컬스토리지에서 로그인 상태 제거
-  }
+  // // 로그아웃 처리 함수
+  // function logout() {
+  //   pb.authStore.clear(); // 로그아웃 처리
+  //   setIsLoggedIn(false); // 로그인 상태 업데이트
+  //   localStorage.removeItem("isLoggedIn"); // 로컬스토리지에서 로그인 상태 제거
+  // }
 
   // 로그인 상태에 따라 페이지 리디렉션
   useEffect(() => {
@@ -24,9 +24,9 @@ const Home = ({ isLoggedIn, setIsLoggedIn }) => {
       <h1 className="dark:text-white">Welcome to PocketBase Tutorial!</h1>
       {isLoggedIn && (
         <button
-          className="border rounded-md bg-gray-400 py-1 px-4"
-          onClick={logout}
-        >
+          onClick={onLogout}
+          className="border px-2 py-1 bg-red-500 text-white"
+      >
           Logout
         </button>
       )}

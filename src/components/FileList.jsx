@@ -3,20 +3,26 @@ import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
 import FileListSkeleton from "./FileListSkeleton";
 
-const FileList = () => {
+const FileList = ({ loggedInUserId }) => {
     const [fileData, setFileData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [favorites, setFavorites] = useState(() => {
-        // LocalStorage에서 찜 목록 초기화
-        const storedFavorites = localStorage.getItem("favorites");
+        const storedFavorites = localStorage.getItem(`favorites_${loggedInUserId}`);
         return storedFavorites ? JSON.parse(storedFavorites) : {};
     });
 
     const toggleFavorite = (id) => {
+        // 테스트 완료 후 활성
+        // if (!loggedInUserId) {
+        //     alert("로그인이 필요합니다.");
+        //     return;
+        // }
+
         setFavorites((prev) => {
             const updatedFavorites = { ...prev, [id]: !prev[id] };
-            localStorage.setItem("favorites", JSON.stringify(updatedFavorites)); // LocalStorage에 저장
+            localStorage.setItem(`favorites_${loggedInUserId}`, JSON.stringify(updatedFavorites)); // LocalStorage에 저장
             console.log(id)
+            console.log(loggedInUserId)
             return updatedFavorites;
         });
     };
@@ -25,12 +31,13 @@ const FileList = () => {
         const fetchFiles = async () => {
             try {
                 const files = await pb.collection("files").getFullList(1, { autoCancel: false });
-                setFileData(files.map(file => ({
-                    id: file.id, // file.id 추가
+                const formattedFiles = files.map((file) => ({
+                    id: file.id,
                     imageUrl: getPbImageURL(file, "photo"),
                     name: file.name || "No name",
                     price: file.price || 0,
-                })));
+                }));
+                setFileData(formattedFiles);
             } catch (error) {
                 console.error("Error fetching files:", error);
             } finally {

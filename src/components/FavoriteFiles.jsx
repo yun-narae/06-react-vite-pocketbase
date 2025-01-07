@@ -3,7 +3,7 @@ import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
 import FileListSkeleton from "./FileListSkeleton";
 
-const FavoriteFiles = () => {
+const FavoriteFiles = ({ loggedInUserId }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [favorites, setFavorites] = useState(() => {
         const storedFavorites = localStorage.getItem("favorites");
@@ -12,27 +12,18 @@ const FavoriteFiles = () => {
     const [favoriteFiles, setFavoriteFiles] = useState([]);
 
     useEffect(() => {
-        const fetchFavoriteFiles = async () => {
-            try {
-                const fileIds = Object.keys(favorites).filter((id) => favorites[id]);
-                const files = await Promise.all(
-                    fileIds.map((id) => pb.collection("files").getOne(id))
-                );
-                setFavoriteFiles(files.map(file => ({
-                    id: file.id,
-                    imageUrl: getPbImageURL(file, "photo"),
-                    name: file.name || "No name",
-                    price: file.price || 0,
-                })));
-            } catch (error) {
-                console.error("Error fetching favorite files:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        // if (!loggedInUserId) return;
 
-        fetchFavoriteFiles();
-    }, [favorites]);
+        const storedFiles = localStorage.getItem("fileData");
+        const storedFavorites = localStorage.getItem(`favorites_${loggedInUserId}`);
+        if (storedFiles && storedFavorites) {
+            const parsedFiles = JSON.parse(storedFiles);
+            const parsedFavorites = JSON.parse(storedFavorites);
+            const filteredFiles = parsedFiles.filter((file) => parsedFavorites[file.id]);
+            setFavoriteFiles(filteredFiles);
+        }
+        
+    }, [loggedInUserId]);
 
     const handleRemoveFavorite = (id) => {
         setFavorites((prev) => {
