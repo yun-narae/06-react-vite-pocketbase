@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from "react";
 import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
-import FileListSkeleton from "./FileListSkeleton"; // import the skeleton component
+import FileListSkeleton from "./FileListSkeleton";
 
 const FileList = () => {
     const [fileData, setFileData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [favorites, setFavorites] = useState(() => {
+        // LocalStorage에서 찜 목록 초기화
+        const storedFavorites = localStorage.getItem("favorites");
+        return storedFavorites ? JSON.parse(storedFavorites) : {};
+    });
+
+    const toggleFavorite = (id) => {
+        setFavorites((prev) => {
+            const updatedFavorites = { ...prev, [id]: !prev[id] };
+            localStorage.setItem("favorites", JSON.stringify(updatedFavorites)); // LocalStorage에 저장
+            console.log(id)
+            return updatedFavorites;
+        });
+    };
 
     useEffect(() => {
         const fetchFiles = async () => {
@@ -55,6 +69,12 @@ const FileList = () => {
                             <span className="text-sm font-bold dark:text-white">{file.name}</span>
                             <span className="text-sm font-bold text-zinc-600 dark:text-slate-400">{file.price}원</span>
                         </div>
+                        <button
+                            onClick={() => toggleFavorite(file.id)} // 찜 상태 변경
+                            className={`text-sm ${favorites[file.id] ? "text-red-500" : "text-gray-500"}`}
+                        >
+                            {favorites[file.id] ? "찜 취소" : "찜하기"}
+                        </button>
                     </li>
                 ))}
             </ul>
