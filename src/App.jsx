@@ -7,6 +7,8 @@ import Header from "./components/Header";
 import Layout from "./components/Layout"; // Layout 컴포넌트 추가
 import Home from "./components/Home"; // Home 컴포넌트 추가
 import FileList from "./components/FileList";
+// import FileDetail from "./components/FileDetail";
+import FavoriteFiles from "./components/FavoriteFiles";
 
 function App() {
     // 다크모드 상태를 초기화할 때 localStorage에서 값 불러오기
@@ -55,6 +57,8 @@ function App() {
                     <Route path="/06-react-vite-pocketbase/register" element={<Register />} />
                     <Route path="/06-react-vite-pocketbase/registration-success" element={<RegistrationSuccess />} />
                     <Route path="/06-react-vite-pocketbase/fileList" element={<FileList />} />
+                    {/* <Route path="/06-react-vite-pocketbase/file/:id" element={<FileDetail />} /> */}
+                    <Route path="/06-react-vite-pocketbase/favorites" element={<FavoriteFiles />} />
                 </Route>
             </Routes>
         </Router>
