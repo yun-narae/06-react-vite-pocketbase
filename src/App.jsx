@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import pb from "./lib/pocketbase";
 import Register from "./Auth/Register";
 import Login from "./Auth/Login";
 import RegistrationSuccess from "./Auth/RegistrationSuccess";
@@ -16,11 +17,18 @@ function App() {
         const savedMode = localStorage.getItem("isdarkMode");
         return savedMode === "true"; // 'true'로 저장된 값이면 true, 아니면 false
     });
-
+    
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
         const storedLoginStatus = localStorage.getItem("isLoggedIn");
         return storedLoginStatus === "true"; // 'true'로 저장된 값이면 true, 아니면 false
     });
+
+    // 로그인 사용자 저장
+    const [loggedInUserId, setLoggedInUserId] = useState(() => {
+        return localStorage.getItem("loggedInUserId") || null;
+    });
+
+    console.log(loggedInUserId)
 
     // 다크모드 상태가 변경될 때마다 HTML의 <html> 태그에 dark 클래스를 추가하거나 제거
     useEffect(() => {
@@ -37,28 +45,54 @@ function App() {
         localStorage.setItem("isLoggedIn", isLoggedIn); // 변경된 로그인 상태를 localStorage에 저장
     }, [isLoggedIn]);
 
+    useEffect(() => {
+        localStorage.setItem("loggedInUserId", loggedInUserId);
+    }, [loggedInUserId]);
+
+    const handleLogout = () => {
+        pb.authStore.clear(); // PocketBase 인증 상태 초기화
+        setIsLoggedIn(false); // 로그인 상태 초기화
+        setLoggedInUserId(null); // 사용자 ID 초기화
+        localStorage.clear(); // 모든 localStorage 데이터 초기화
+    };
+
     return (
         <Router>
             <Header 
                 isLoggedIn={isLoggedIn} 
                 isdarkMode={isdarkMode} 
-                setDarkMode={setDarkMode} 
+                setDarkMode={setDarkMode}
             />
             <Routes>
                 <Route path="/06-react-vite-pocketbase/" element={<Layout />}>
                     <Route
                         index
-                        element={<Home isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+                        element={<Home 
+                            isLoggedIn={isLoggedIn} 
+                            setIsLoggedIn={setIsLoggedIn} 
+                            setLoggedInUserId={setLoggedInUserId} 
+                            onLogout={handleLogout} // 로그아웃 함수 전달
+                        />}
                     />
                     <Route
                         path="/06-react-vite-pocketbase/login"
-                        element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+                        element={<Login 
+                            isLoggedIn={isLoggedIn} 
+                            setIsLoggedIn={setIsLoggedIn} 
+                            setLoggedInUserId={setLoggedInUserId} 
+                        />}
                     />
                     <Route path="/06-react-vite-pocketbase/register" element={<Register />} />
                     <Route path="/06-react-vite-pocketbase/registration-success" element={<RegistrationSuccess />} />
-                    <Route path="/06-react-vite-pocketbase/fileList" element={<FileList />} />
+                    <Route 
+                        path="/06-react-vite-pocketbase/fileList" 
+                        element={<FileList loggedInUserId={loggedInUserId} />} 
+                    />
                     {/* <Route path="/06-react-vite-pocketbase/file/:id" element={<FileDetail />} /> */}
-                    <Route path="/06-react-vite-pocketbase/favorites" element={<FavoriteFiles />} />
+                    <Route 
+                        path="/06-react-vite-pocketbase/favorites" 
+                        element={<FavoriteFiles loggedInUserId={loggedInUserId} />} 
+                    />
                 </Route>
             </Routes>
         </Router>
