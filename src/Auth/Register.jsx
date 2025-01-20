@@ -16,7 +16,7 @@ function Register() {
 
     const isLoggedIn = pb.authStore.isValid;
     useEffect(() => {
-        if (isLoggedIn) navigate("/06-react-vite-pocketbase/");
+        if (isLoggedIn) navigate("/");
     }, [isLoggedIn, navigate]);
 
     // 회원가입 함수
@@ -30,7 +30,7 @@ function Register() {
                 passwordConfirm: data.passwordConfirm,
                 name: data.name,
             });
-            if (record) navigate("/06-react-vite-pocketbase/registration-success"); // 성공 시 완료 페이지로 이동
+            if (record) navigate("/registration-success"); // 성공 시 완료 페이지로 이동
         } catch (error) {
             console.error("회원가입 오류:", error);
             setApiError(error.message || "An error occurred during registration.");

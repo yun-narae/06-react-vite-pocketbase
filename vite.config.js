@@ -13,7 +13,7 @@ export default defineConfig({
       ext: '.br', // 압축된 파일 확장자 설정 (.gz 또는 .br)
     }),
   ],
-  base: '/06-react-vite-pocketbase/',
+  base: '/',
   css: {
     postcss: {
       plugins: [tailwindcss()],
@@ -26,4 +26,7 @@ export default defineConfig({
       }
     },
   },
+  define: {
+    'process.env': {}
+  }
 });

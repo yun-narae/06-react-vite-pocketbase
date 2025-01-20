@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./Auth/Register";
 import Login from "./Auth/Login";
 import RegistrationSuccess from "./Auth/RegistrationSuccess";
@@ -9,52 +9,46 @@ import Home from "./components/Home"; // Home 컴포넌트 추가
 import FileList from "./components/FileList";
 
 function App() {
-    // 다크모드 상태를 초기화할 때 localStorage에서 값 불러오기
     const [isdarkMode, setDarkMode] = useState(() => {
         const savedMode = localStorage.getItem("isdarkMode");
-        return savedMode === "true"; // 'true'로 저장된 값이면 true, 아니면 false
+        return savedMode === "true";
     });
 
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
         const storedLoginStatus = localStorage.getItem("isLoggedIn");
-        return storedLoginStatus === "true"; // 'true'로 저장된 값이면 true, 아니면 false
+        return storedLoginStatus === "true";
     });
 
-    // 다크모드 상태가 변경될 때마다 HTML의 <html> 태그에 dark 클래스를 추가하거나 제거
     useEffect(() => {
         if (isdarkMode) {
             document.documentElement.classList.add("dark");
         } else {
             document.documentElement.classList.remove("dark");
         }
-        localStorage.setItem("isdarkMode", isdarkMode); // 변경된 다크모드 상태를 localStorage에 저장
+        localStorage.setItem("isdarkMode", isdarkMode);
     }, [isdarkMode]);
 
-    // 로그인 상태가 변경될 때마다 localStorage에 상태 저장
     useEffect(() => {
-        localStorage.setItem("isLoggedIn", isLoggedIn); // 변경된 로그인 상태를 localStorage에 저장
+        localStorage.setItem("isLoggedIn", isLoggedIn);
     }, [isLoggedIn]);
 
     return (
-        <Router>
+        <Router basename={process.env.VITE_PUBLIC_URL}>
             <Header 
                 isLoggedIn={isLoggedIn} 
                 isdarkMode={isdarkMode} 
                 setDarkMode={setDarkMode} 
             />
             <Routes>
-                <Route path="/06-react-vite-pocketbase/" element={<Layout />}>
+                <Route path="/" element={<Layout />}>
                     <Route
                         index
                         element={<Home isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
                     />
-                    <Route
-                        path="/06-react-vite-pocketbase/login"
-                        element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
-                    />
-                    <Route path="/06-react-vite-pocketbase/register" element={<Register />} />
-                    <Route path="/06-react-vite-pocketbase/registration-success" element={<RegistrationSuccess />} />
-                    <Route path="/06-react-vite-pocketbase/fileList" element={<FileList />} />
+                    <Route path="/login" element={<Login isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/registration-success" element={<RegistrationSuccess />} />
+                    <Route path="/fileList" element={<FileList />} />
                 </Route>
             </Routes>
         </Router>
