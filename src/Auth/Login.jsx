@@ -3,9 +3,8 @@ import pb from "../lib/pocketbase";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-function Login({ setIsLoggedIn, setLoggedInUserId }) {
+function Login({ setIsLoggedIn, setLoggedInUserId, isLoading, setIsLoading }) {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const [isLoading, setLoading] = useState(false);
     const [apiError, setApiError] = useState(""); // API 에러 메시지 상태 추가
     const navigate = useNavigate();
 
@@ -16,7 +15,7 @@ function Login({ setIsLoggedIn, setLoggedInUserId }) {
     }, [isLoggedInStatus, navigate]);
 
     async function login(data) {
-        setLoading(true);
+        setIsLoading(true);
         setApiError(""); // 에러 초기화
         try {
             // PocketBase 로그인 요청
@@ -38,7 +37,7 @@ function Login({ setIsLoggedIn, setLoggedInUserId }) {
             // 로그인 실패 시 에러 메시지 설정
             setApiError("Invalid credentials or error occurred.");
         } finally {
-            setLoading(false); // 로딩 상태 해제
+            setIsLoading(false); // 로딩 상태 해제
         }
     }
 
@@ -60,7 +59,10 @@ function Login({ setIsLoggedIn, setLoggedInUserId }) {
                         className="border rounded-md p-1"
                         type="email"
                         placeholder="Input your email"
-                        {...register("email", { required: "Email is required" })}
+                        {...register("email", { 
+                            required: "Email is required" }
+                        )}
+                        disabled={isLoading} // 로딩 중 비활성화
                     />
                     <p className="text-red-500">{errors.email?.message}</p>
 
@@ -72,6 +74,7 @@ function Login({ setIsLoggedIn, setLoggedInUserId }) {
                             required: "Password is required",
                             minLength: { value: 6, message: "Password must be at least 6 characters" }
                         })}
+                        disabled={isLoading} // 로딩 중 비활성화
                     />
                     <p className="text-red-500">{errors.password?.message}</p>
 

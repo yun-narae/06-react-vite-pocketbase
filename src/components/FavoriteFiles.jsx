@@ -2,20 +2,29 @@ import React, { useEffect, useState } from "react";
 import FileListSkeleton from "./FileListSkeleton";
 import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
+import { useNavigate } from "react-router-dom";
 
-const FavoriteFiles = ({ loggedInUserId }) => {
-    const [isLoading, setIsLoading] = useState(true);
+const FavoriteFiles = ({ isLoggedIn, loggedInUserId, isLoading, setIsLoading }) => {
+    const navigate = useNavigate();
     const [favoriteFiles, setFavoriteFiles] = useState([]);
+    const [dataloading, setDataLoading] = useState(true); // 데이터 로딩을 위한 상태
 
     useEffect(() => {
-        if (!loggedInUserId) return; // loggedInUserId가 없으면 실행하지 않음
-    
+        // 로그인 상태가 아니면 알림을 띄우고 종료
+        if (!isLoggedIn || !loggedInUserId) {
+            alert("로그인이 필요합니다.");
+            navigate("/login");
+            return;
+        }
+
         // 로컬 스토리지에서 찜 목록을 가져옴
         const storedFavorites = localStorage.getItem(`favorites_${loggedInUserId}`);
 
         if (storedFavorites) {
             const parsedFavorites = JSON.parse(storedFavorites);
-
+            setIsLoading(true); // 전체 로딩 상태 시작
+            setDataLoading(true); // 데이터 로딩 상태 시작
+            console.log(storedFavorites)
             // 파일 데이터를 API에서 가져옴 (PocketBase)
             pb.collection("files")
                 .getFullList(1, { autoCancel: false })
@@ -32,11 +41,15 @@ const FavoriteFiles = ({ loggedInUserId }) => {
                     setFavoriteFiles(filteredFiles); // 찜한 파일만 설정
                 })
                 .catch((error) => console.error("파일을 가져오는 중 오류 발생:", error))
-                .finally(() => setIsLoading(false)); // 파일을 가져온 후 로딩 상태 해제
+                .finally(() => {
+                    setIsLoading(false); // 전체 로딩 상태 해제
+                    setDataLoading(false); // 데이터 로딩 완료
+                });
         } else {
-            setIsLoading(false); // 찜 목록이 없으면 로딩 상태 해제
+            setIsLoading(false); // 전체 로딩 상태 해제
+            setDataLoading(false); // 데이터 로딩 완료
         }
-    }, [loggedInUserId]); // loggedInUserId가 변경될 때마다 실행
+    }, [loggedInUserId, isLoggedIn, navigate, setIsLoading]); // loggedInUserId가 변경될 때마다 실행
 
     const handleRemoveFavorite = (id) => {
         const favoritesKey = `favorites_${loggedInUserId}`;
@@ -50,11 +63,13 @@ const FavoriteFiles = ({ loggedInUserId }) => {
         setFavoriteFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
     };
 
-    if (isLoading) {
+    if (dataloading || isLoading) {
         return <FileListSkeleton />; // 로딩 중일 때 스켈레톤 UI 표시
     }
 
-    if (!favoriteFiles.length) return <p>찜한 파일이 없습니다.</p>;
+    if (favoriteFiles.length === 0) {
+        return <p>찜한 제품이 비어있습니다.</p>; // 데이터가 없을 때 메시지 표시
+    }
 
     return (
         <>

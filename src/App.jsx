@@ -11,6 +11,8 @@ import FileList from "./components/FileList";
 import FavoriteFiles from "./components/FavoriteFiles";
 
 function App() {
+    const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
+
     const [isdarkMode, setDarkMode] = useState(() => {
         const savedMode = localStorage.getItem("isdarkMode");
         return savedMode === "true";
@@ -26,7 +28,7 @@ function App() {
         return localStorage.getItem("loggedInUserId") || null;
     });
 
-    console.log(loggedInUserId)
+    console.log(isLoading)
 
     // 다크모드 상태가 변경될 때마다 HTML의 <html> 태그에 dark 클래스를 추가하거나 제거
     useEffect(() => {
@@ -77,6 +79,8 @@ function App() {
                 isLoggedIn={isLoggedIn} 
                 isdarkMode={isdarkMode} 
                 setDarkMode={setDarkMode}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
             />
             <Routes>
                 <Route path="/" element={<Layout />}>
@@ -92,17 +96,19 @@ function App() {
                     <Route path="/login" element={<Login 
                             isLoggedIn={isLoggedIn} 
                             setIsLoggedIn={setIsLoggedIn} 
-                            setLoggedInUserId={setLoggedInUserId} 
+                            setLoggedInUserId={setLoggedInUserId}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
                         />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/registration-success" element={<RegistrationSuccess />} />
+                    <Route path="/register" element={<Register isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+                    <Route path="/registration-success" element={<RegistrationSuccess isLoading={isLoading} setIsLoading={setIsLoading}/>} />
                     <Route 
                         path="/fileList" 
-                        element={<FileList loggedInUserId={loggedInUserId} />} 
+                        element={<FileList isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
                     />
                     <Route 
                         path="/favorites" 
-                        element={<FavoriteFiles loggedInUserId={loggedInUserId} />} 
+                        element={<FavoriteFiles isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
                     />
                 </Route>
             </Routes>
