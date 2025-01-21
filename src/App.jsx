@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import pb from "./lib/pocketbase";
 import Register from "./Auth/Register";
 import Login from "./Auth/Login";
@@ -8,19 +8,17 @@ import Header from "./components/Header";
 import Layout from "./components/Layout"; // Layout 컴포넌트 추가
 import Home from "./components/Home"; // Home 컴포넌트 추가
 import FileList from "./components/FileList";
-// import FileDetail from "./components/FileDetail";
 import FavoriteFiles from "./components/FavoriteFiles";
 
 function App() {
-    // 다크모드 상태를 초기화할 때 localStorage에서 값 불러오기
     const [isdarkMode, setDarkMode] = useState(() => {
         const savedMode = localStorage.getItem("isdarkMode");
-        return savedMode === "true"; // 'true'로 저장된 값이면 true, 아니면 false
+        return savedMode === "true";
     });
     
     const [isLoggedIn, setIsLoggedIn] = useState(() => {
         const storedLoginStatus = localStorage.getItem("isLoggedIn");
-        return storedLoginStatus === "true"; // 'true'로 저장된 값이면 true, 아니면 false
+        return storedLoginStatus === "true";
     });
 
     // 로그인 사용자 저장
@@ -37,12 +35,11 @@ function App() {
         } else {
             document.documentElement.classList.remove("dark");
         }
-        localStorage.setItem("isdarkMode", isdarkMode); // 변경된 다크모드 상태를 localStorage에 저장
+        localStorage.setItem("isdarkMode", isdarkMode);
     }, [isdarkMode]);
 
-    // 로그인 상태가 변경될 때마다 localStorage에 상태 저장
     useEffect(() => {
-        localStorage.setItem("isLoggedIn", isLoggedIn); // 변경된 로그인 상태를 localStorage에 저장
+        localStorage.setItem("isLoggedIn", isLoggedIn);
     }, [isLoggedIn]);
 
     useEffect(() => {
@@ -75,14 +72,14 @@ function App() {
     };
 
     return (
-        <Router>
+        <Router basename={process.env.VITE_PUBLIC_URL}>
             <Header 
                 isLoggedIn={isLoggedIn} 
                 isdarkMode={isdarkMode} 
                 setDarkMode={setDarkMode}
             />
             <Routes>
-                <Route path="/06-react-vite-pocketbase/" element={<Layout />}>
+                <Route path="/" element={<Layout />}>
                     <Route
                         index
                         element={<Home 
@@ -92,23 +89,19 @@ function App() {
                             onLogout={handleLogout} // 로그아웃 함수 전달
                         />}
                     />
-                    <Route
-                        path="/06-react-vite-pocketbase/login"
-                        element={<Login 
+                    <Route path="/login" element={<Login 
                             isLoggedIn={isLoggedIn} 
                             setIsLoggedIn={setIsLoggedIn} 
                             setLoggedInUserId={setLoggedInUserId} 
-                        />}
-                    />
-                    <Route path="/06-react-vite-pocketbase/register" element={<Register />} />
-                    <Route path="/06-react-vite-pocketbase/registration-success" element={<RegistrationSuccess />} />
+                        />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/registration-success" element={<RegistrationSuccess />} />
                     <Route 
-                        path="/06-react-vite-pocketbase/fileList" 
+                        path="/fileList" 
                         element={<FileList loggedInUserId={loggedInUserId} />} 
                     />
-                    {/* <Route path="/06-react-vite-pocketbase/file/:id" element={<FileDetail />} /> */}
                     <Route 
-                        path="/06-react-vite-pocketbase/favorites" 
+                        path="/favorites" 
                         element={<FavoriteFiles loggedInUserId={loggedInUserId} />} 
                     />
                 </Route>
