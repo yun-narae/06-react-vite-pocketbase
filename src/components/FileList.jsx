@@ -1,17 +1,44 @@
 import React, { useState, useEffect } from "react";
 import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
-import FileListSkeleton from "./FileListSkeleton"; // import the skeleton component
+import FileListSkeleton from "./FileListSkeleton";
+import { useNavigate } from "react-router-dom";
 
-const FileList = () => {
-    const [fileData, setFileData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+const FileList = ({ isLoggedIn, loggedInUserId, isLoading, setIsLoading }) => {
+    const navigate = useNavigate();
+    const [ fileData, setFileData ] = useState([]); // 실제 데이터 상태
+    const [ dataloading, setDataLoading ] = useState(true); // 로딩 상태, 데이터 로딩을 나타내기 위한 상태
+    const [favorites, setFavorites] = useState(() => {
+        const storedFavorites = localStorage.getItem(`favorites_${loggedInUserId}`);
+        return storedFavorites ? JSON.parse(storedFavorites) : {};
+    });
+
+    const toggleFavorite = (id) => {
+        // 로그인 상태가 아니면 알림을 띄우고 종료
+        if (!isLoggedIn || !loggedInUserId) {
+            alert("로그인이 필요합니다.");
+            navigate("/login");
+            return;
+        }
+
+        setFavorites((prev) => {
+            const updatedFavorites = { ...prev, [id]: !prev[id] };
+            localStorage.setItem(`favorites_${loggedInUserId}`, JSON.stringify(updatedFavorites)); // LocalStorage에 저장
+
+            return updatedFavorites;
+        });
+    };
 
     useEffect(() => {
         const fetchFiles = async () => {
+            setIsLoading(true); // API 호출 전에 로딩 상태 시작
+            setDataLoading(true); // 데이터 로딩 상태 true로 설정
+
             try {
                 const files = await pb.collection("files").getFullList(1, { autoCancel: false });
+
                 setFileData(files.map(file => ({
+                    id: file.id,
                     imageUrl: getPbImageURL(file, "photo"),
                     name: file.name || "No name",
                     price: file.price || 0,
@@ -19,19 +46,22 @@ const FileList = () => {
             } catch (error) {
                 console.error("Error fetching files:", error);
             } finally {
-                setIsLoading(false);
+                setIsLoading(false); // 전체 로딩 상태 해제
+                setDataLoading(false); // 데이터 로딩 완료, 대기 상태 해제
             }
         };
 
         fetchFiles();
-    }, []);
+    }, [loggedInUserId]);
 
-    if (isLoading) {
-        return <FileListSkeleton />; // Show skeleton UI while loading
+    // 데이터 로딩 중이면 스켈레톤 UI 표시
+    if (dataloading || isLoading) {
+        return <FileListSkeleton />;
     }
 
-    if (!fileData.length) {
-        return <p>No files available.</p>;
+    // 데이터가 로드 완료된 후 fileData가 비어 있을 경우만 "No files available." 메시지 표시
+    if (fileData.length === 0) {
+        return <p>제품이 비어있습니다.</p>;
     }
 
     return (
@@ -49,12 +79,18 @@ const FileList = () => {
                                 width="800px"
                                 height="800px"
                                 className="w-full"
-                                />
+                            />
                         </figure>
                         <div className="flex flex-col">
                             <span className="text-sm font-bold dark:text-white">{file.name}</span>
                             <span className="text-sm font-bold text-zinc-600 dark:text-slate-400">{file.price}원</span>
                         </div>
+                        <button
+                            onClick={() => toggleFavorite(file.id)} // 찜 상태 변경
+                            className={`text-sm ${favorites[file.id] ? "text-red-500" : "text-gray-500"}`}
+                        >
+                            {favorites[file.id] ? "찜 취소" : "찜하기"}
+                        </button>
                     </li>
                 ))}
             </ul>
