@@ -4,11 +4,11 @@ import pb from "./lib/pocketbase";
 import Register from "./Auth/Register";
 import Login from "./Auth/Login";
 import RegistrationSuccess from "./Auth/RegistrationSuccess";
-import Header from "./components/Header";
-import Layout from "./components/Layout"; // Layout 컴포넌트 추가
-import Home from "./components/Home"; // Home 컴포넌트 추가
-import FileList from "./components/FileList";
-import FavoriteFiles from "./components/FavoriteFiles";
+import Header from "./pages/Header";
+import Layout from "./pages/Layout"; // Layout 컴포넌트 추가
+import Home from "./pages/Home"; // Home 컴포넌트 추가
+import FileList from "./pages/FileList";
+import FavoriteFiles from "./pages/FavoriteFiles";
 
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
