@@ -55,9 +55,9 @@ export const Button = ({
     if (showIcon) {
       switch (icon) {
         case 'google':
-          return <FaGoogle className="mr-2" />; // 구글 아이콘
+          return <FaGoogle className="mr-2" data-testid="google-icon" />; // 구글 아이콘에 testid 추가
         case 'facebook':
-          return <FaFacebook className="mr-2" />; // 페이스북 아이콘
+          return <FaFacebook className="mr-2" data-testid="facebook-icon" />; // 페이스북 아이콘에 testid 추가
         default:
           return null;
       }
@@ -68,7 +68,7 @@ export const Button = ({
   return (
     <button
       type="button"
-      className={`flex items-center cursor-pointer rounded-full font-semibold ${buttonStyles} ${sizeClasses[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${buttonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`flex items-center rounded-full font-semibold ${buttonStyles} ${sizeClasses[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${buttonDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       style={{ ...backgroundStyle, ...borderStyle }} // 객체 결합
       onClick={!buttonDisabled ? onClick : undefined} // 로딩 중에는 클릭 불가
       disabled={buttonDisabled} // disabled 속성 적용
