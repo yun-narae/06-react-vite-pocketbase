@@ -4,7 +4,7 @@ import pb from "./lib/pocketbase";
 import Register from "./Auth/Register";
 import Login from "./Auth/Login";
 import RegistrationSuccess from "./Auth/RegistrationSuccess";
-import Header from "./pages/Header";
+import Header from "./components/Header";
 import Layout from "./pages/Layout"; // Layout 컴포넌트 추가
 import Home from "./pages/Home"; // Home 컴포넌트 추가
 import FileList from "./pages/FileList";
@@ -13,8 +13,8 @@ import FavoriteFiles from "./pages/FavoriteFiles";
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
 
-    const [isdarkMode, setDarkMode] = useState(() => {
-        const savedMode = localStorage.getItem("isdarkMode");
+    const [isDarkMode, setDarkMode] = useState(() => {
+        const savedMode = localStorage.getItem("isDarkMode");
         return savedMode === "true";
     });
     
@@ -28,17 +28,15 @@ function App() {
         return localStorage.getItem("loggedInUserId") || null;
     });
 
-    console.log(isLoading)
-
     // 다크모드 상태가 변경될 때마다 HTML의 <html> 태그에 dark 클래스를 추가하거나 제거
     useEffect(() => {
-        if (isdarkMode) {
+        if (isDarkMode) {
             document.documentElement.classList.add("dark");
         } else {
             document.documentElement.classList.remove("dark");
         }
-        localStorage.setItem("isdarkMode", isdarkMode);
-    }, [isdarkMode]);
+        localStorage.setItem("isDarkMode", isDarkMode);
+    }, [isDarkMode]);
 
     useEffect(() => {
         localStorage.setItem("isLoggedIn", isLoggedIn);
@@ -59,7 +57,7 @@ function App() {
     
         // localStorage에서 특정 항목들만 초기화
         localStorage.removeItem('loggedInUserId');
-        localStorage.removeItem('isdarkMode');
+        localStorage.removeItem('isDarkMode');
         localStorage.removeItem('pocketbase_auth');
     
         // 로그인 상태 초기화
@@ -77,7 +75,7 @@ function App() {
         <Router basename={process.env.VITE_PUBLIC_URL}>
             <Header 
                 isLoggedIn={isLoggedIn} 
-                isdarkMode={isdarkMode} 
+                isDarkMode={isDarkMode} 
                 setDarkMode={setDarkMode}
                 isLoading={isLoading}
                 setIsLoading={setIsLoading}

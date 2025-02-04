@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import pb from "../lib/pocketbase";
 
-const Home = ({ isLoggedIn, isdarkMode, setDarkMode, onLogout  }) => {
+const Home = ({ isLoggedIn, isDarkMode, setDarkMode, onLogout  }) => {
   const navigate = useNavigate();
 
   // // 로그아웃 처리 함수

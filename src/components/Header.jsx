@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 import pb from "../lib/pocketbase";
 import { useEffect } from "react";
+import { Button } from "../components/Button";
 
-function Header({ isLoggedIn, isdarkMode, setDarkMode, isLoading, setIsLoading }) {
-    const user = pb.authStore.model;
+const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) => {    const user = pb.authStore.model;
 
     const toggleDarkMode = () => {
-        setDarkMode(!isdarkMode); // 다크모드 상태 반전
+        setDarkMode(!isDarkMode); // 다크모드 상태 반전
     };
 
     useEffect(() => {
@@ -75,13 +75,21 @@ function Header({ isLoggedIn, isdarkMode, setDarkMode, isLoading, setIsLoading }
                     </li>
                 )}
                 <li>
-                    <button
+                    {/* <button
                         onClick={toggleDarkMode}
                         disabled={isLoading} // 로딩 중 버튼 비활성화
                         className="px-4 py-2 bg-gray-300 border border-stone-400 dark:bg-gray-700 dark:border-gray-900 text-white rounded"
                     >
-                        {isdarkMode ? "Light" : "Dark"}
-                    </button>
+                        {isDarkMode ? "Light" : "Dark"}
+                    </button> */}
+                    <Button
+                        type= 'darkMode'
+                        onClick={toggleDarkMode}
+                        isLoading={isLoading} 
+                        isDarkMode= {isDarkMode}
+                        label = {isDarkMode ? 'Light' : 'Dark'}
+                    >
+                    </Button>
                 </li>
             </ul>
         </nav>
