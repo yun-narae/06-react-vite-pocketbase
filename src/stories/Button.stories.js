@@ -58,8 +58,6 @@ export const SocialButton = {
     icon: { control: 'radio', options: ['google', 'facebook'] },
     // `isDarkMode`를 제외하여 SocialButton에서는 이를 제어할 수 없도록 함
     isDarkMode: { table: { disable: true } },
-    // `type`은 강제로 'social'로 설정
-    type: { table: { disable: true } },
   },
 };
 
@@ -74,8 +72,6 @@ export const DarkModeButton = {
     // `showIcon`과 `icon`은 DarkModeButton에서 사용하지 않도록 설정
     showIcon: { table: { disable: true } },
     icon: { table: { disable: true } },
-    // `type`은 'darkMode'로 강제 설정
-    type: { table: { disable: true } },
   },
 };
 
@@ -91,7 +87,5 @@ export const LoadingButton = {
     // `showIcon`과 `icon`은 LoadingButton에서 사용하지 않도록 설정
     showIcon: { table: { disable: true } },
     icon: { table: { disable: true } },
-    // `type`은 'login'으로 고정
-    type: { table: { disable: true } },
   },
 };
