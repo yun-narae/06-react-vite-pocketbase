@@ -15,7 +15,8 @@
     "pocketbase": "npx pockethost serve",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.9",

@@ -55,9 +55,9 @@ export const Button = ({
     if (showIcon) {
       switch (icon) {
         case 'google':
-          return <FaGoogle className="mr-2" />; // 구글 아이콘
+          return <FaGoogle className="mr-2" data-testid="google-icon" />; // 구글 아이콘에 testid 추가
         case 'facebook':
-          return <FaFacebook className="mr-2" />; // 페이스북 아이콘
+          return <FaFacebook className="mr-2" data-testid="facebook-icon" />; // 페이스북 아이콘에 testid 추가
         default:
           return null;
       }
