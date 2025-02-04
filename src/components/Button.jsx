@@ -68,7 +68,7 @@ export const Button = ({
   return (
     <button
       type="button"
-      className={`flex items-center cursor-pointer rounded-full font-semibold ${buttonStyles} ${sizeClasses[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${buttonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`flex items-center rounded-full font-semibold ${buttonStyles} ${sizeClasses[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${buttonDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       style={{ ...backgroundStyle, ...borderStyle }} // 객체 결합
       onClick={!buttonDisabled ? onClick : undefined} // 로딩 중에는 클릭 불가
       disabled={buttonDisabled} // disabled 속성 적용
