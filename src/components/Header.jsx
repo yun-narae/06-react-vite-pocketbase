@@ -74,22 +74,23 @@ const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }
                         <p className="whitespace-nowrap">{user.name}님</p>
                     </li>
                 )}
-                <li>
-                    {/* <button
-                        onClick={toggleDarkMode}
-                        disabled={isLoading} // 로딩 중 버튼 비활성화
-                        className="px-4 py-2 bg-gray-300 border border-stone-400 dark:bg-gray-700 dark:border-gray-900 text-white rounded"
-                    >
-                        {isDarkMode ? "Light" : "Dark"}
-                    </button> */}
+                <li className="flex gap-2">
                     <Button
                         type= 'darkMode'
                         onClick={toggleDarkMode}
                         isLoading={isLoading} 
                         isDarkMode= {isDarkMode}
-                        label = {isDarkMode ? 'Light' : 'Dark'}
-                    >
-                    </Button>
+                        label=''
+                    />
+
+                    <Button
+                        type= 'social'
+                        isLoading={isLoading} 
+                        isDarkMode= {isDarkMode}
+                        label = 'social'
+                        showIcon={true}
+                        icon= 'google'
+                    />
                 </li>
             </ul>
         </nav>
