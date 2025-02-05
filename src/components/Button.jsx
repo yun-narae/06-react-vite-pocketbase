@@ -52,8 +52,12 @@ export const Button = ({
       break;
 
     default:
-      buttonStyles = 'bg-gray-600 text-white';
-      hoverStyles = 'hover:bg-gray-700';
+      buttonStyles = isDarkMode
+        ? 'bg-gray-600 text-white'
+        : 'bg-gray-300 text-black';
+      hoverStyles = isDarkMode
+        ? 'hover:bg-gray-800 hover:font-bold'
+        : 'hover:bg-gray-500 hover:font-bold';
   }
 
   // isLoading 또는 disabled일 경우 비활성화 처리
