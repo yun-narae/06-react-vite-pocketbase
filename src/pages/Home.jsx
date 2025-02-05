@@ -22,12 +22,12 @@ const Home = ({ isLoggedIn, isLoading, isDarkMode, onLogout  }) => {
 
   return (
     <>
-        <div>
-            <h1 className="dark:text-white">Welcome to PocketBase Tutorial!</h1>
+        <h1 className="dark:text-white">Welcome to PocketBase Tutorial!</h1>
+        <div className="flex flex-col">
             {isLoggedIn && (
                 <button
                 onClick={onLogout}
-                className="border px-2 py-1 bg-red-500 text-white"
+                className="w-20 border px-2 py-1 bg-red-500 text-white"
                 >
                 Logout
                 </button>
@@ -39,9 +39,9 @@ const Home = ({ isLoggedIn, isLoading, isDarkMode, onLogout  }) => {
                 isLoading={isLoading} 
                 isDarkMode= {isDarkMode}
                 label = 'Test'
-                className='mt-3'
+                className='mt-3 w-20'
                 disabled={true}  // 버튼을 활성화
-                />
+            />
         </div>
     </>
   );

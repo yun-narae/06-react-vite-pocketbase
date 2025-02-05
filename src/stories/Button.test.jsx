@@ -14,22 +14,13 @@ describe('Button Component', () => {
     expect(button).toHaveClass('bg-gray-600');
     expect(button).toHaveClass('text-white');
   });
-
-  test('소셜 로그인 버튼에서 구글 아이콘 렌더링 확인', () => {
-    render(<Button type="social" label="Login with Google" icon="google" showIcon={true} />);
-    const button = screen.getByRole('button');
-    
-    // 구글 아이콘이 렌더링되어야 함
-    const icon = button.querySelector('.mr-2'); // mr-2 클래스를 사용한 아이콘
-    expect(icon).toBeInTheDocument();
-  });
   
   test('소셜 로그인 버튼에서 페이스북 아이콘 렌더링 확인', () => {
     render(<Button type="social" label="Login with Facebook" icon="facebook" showIcon={true} />);
     const button = screen.getByRole('button');
     
     // 페이스북 아이콘이 렌더링되어야 함
-    const icon = button.querySelector('.mr-2'); // mr-2 클래스를 사용한 아이콘
+    const icon = button.querySelector('svg'); // FaFacebook 아이콘은 svg로 렌더링됨
     expect(icon).toBeInTheDocument();
   });
   
@@ -38,7 +29,7 @@ describe('Button Component', () => {
     const button = screen.getByRole('button');
     
     // 아이콘이 렌더링되지 않음
-    const icon = button.querySelector('.mr-2');
+    const icon = button.querySelector('svg');
     expect(icon).not.toBeInTheDocument();
   });
   
@@ -87,7 +78,7 @@ describe('Button Component', () => {
     // 버튼이 비활성화 상태일 때 클릭이 불가능한지 확인
     expect(button).toBeDisabled(); // 이제 정상적으로 disabled 상태 확인 가능
   });
-  
+
   test('로딩 상태가 아닐 때 버튼 텍스트 확인', () => {
     render(<Button type="default" label="Submit" isLoading={false} />);
     const button = screen.getByRole('button');

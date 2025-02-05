@@ -6,6 +6,7 @@ export const Button = ({
   type = 'default',
   size = 'medium',
   label,
+  title,
   className,
   disabled = false, // disabled 기본값 설정
   onClick,
@@ -27,8 +28,8 @@ export const Button = ({
         ? 'bg-yellow-700 text-white'
         : 'bg-yellow-300 text-black';
       hoverStyles = isDarkMode
-        ? 'hover:bg-yellow-600'
-        : 'hover:bg-yellow-200';
+        ? 'hover:bg-yellow-600 hover:font-bold'
+        : 'hover:bg-yellow-200 hover:font-bold';
       break;
 
     case 'login':
@@ -36,8 +37,8 @@ export const Button = ({
         ? 'bg-blue-700 text-white'
         : 'bg-blue-500 text-black';
       hoverStyles = isDarkMode
-        ? 'hover:bg-blue-500'
-        : 'hover:bg-blue-400';
+        ? 'hover:bg-blue-500 hover:font-bold'
+        : 'hover:bg-blue-400 hover:font-bold';
       break;
 
     case 'darkMode':
@@ -45,8 +46,8 @@ export const Button = ({
         ? 'bg-gray-700 text-white'
         : 'bg-gray-300 text-black';
       hoverStyles = isDarkMode
-        ? 'hover:bg-gray-600 hover:font-light'
-        : 'hover:bg-gray-400 hover:font-light';
+        ? 'hover:bg-gray-600 hover:font-bold'
+        : 'hover:bg-gray-400 hover:font-bold';
       label = isDarkMode ? 'Light' : 'Dark';
       break;
 
@@ -71,11 +72,13 @@ export const Button = ({
   // 아이콘 설정
   const renderIcon = () => {
     if (showIcon) {
+      const iconClasses = "absolute top-1/2 w-auto transform -translate-x-6 -translate-y-1/2"; // 공통 스타일
+  
       switch (icon) {
         case 'google':
-          return <FaGoogle className="mr-2" />;
+          return <FaGoogle className={`${iconClasses}`} />;
         case 'facebook':
-          return <FaFacebook className="mr-2" />;
+          return <FaFacebook className={`${iconClasses}`} />;
         default:
           return null;
       }
@@ -83,13 +86,21 @@ export const Button = ({
     return null;
   };
 
+  // showIcon이 true일 때 각 크기별로 padding을 추가한 class 설정
+  const iconPaddingClass = {
+    small: 'relative pl-10',  // 작은 버튼은 아이콘 왼쪽에 8px padding
+    medium: 'relative pl-11', // 중간 버튼은 아이콘 왼쪽에 10px padding
+    large: 'relative pl-12',  // 큰 버튼은 아이콘 왼쪽에 12px padding
+  };
+
   return (
     <button
       type="button"
-      className={`flex items-center rounded-full ${buttonStyles} ${hoverStyles} ${sizeClasses[size]} ${className}`}
+      className={`items-center rounded-full ${buttonStyles} ${hoverStyles} ${sizeClasses[size]} ${showIcon ? iconPaddingClass[size] : ''} ${className}`}
       onClick={!isLoading && !disabled ? onClick : undefined} // 로딩 중이나 disabled일 때 클릭 불가
       {...props}
       disabled={isLoading || disabled} // 로딩 중일 때도 비활성화 상태로 처리
+      title={label}
     >
       {renderIcon()}
       {isLoading ? 'Loading...' : label}
@@ -101,6 +112,7 @@ Button.propTypes = {
   type: PropTypes.oneOf(['default', 'social', 'login', 'darkMode']),
   size: PropTypes.oneOf(['small', 'medium', 'large']),
   label: PropTypes.string.isRequired,
+  title: PropTypes.string,
   className: PropTypes.string,
   onClick: PropTypes.func,
   isLoading: PropTypes.bool,

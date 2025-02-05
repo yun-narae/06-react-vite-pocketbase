@@ -10,3 +10,12 @@
     @apply animate-shimmer bg-gradient-custom-dark bg-custom;
   }
 }
+
+button::after {
+  content: attr(title); /* 버튼의 title 속성 값을 content로 넣기 */
+  display: block;
+  font-weight: bold;
+  height: 0px;
+  transform: translateY(-18px);
+  visibility: hidden;
+}
