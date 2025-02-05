@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import pb from "../lib/pocketbase";
+import { Button } from "../components/Button";
 
-const Home = ({ isLoggedIn, isDarkMode, setDarkMode, onLogout  }) => {
+const Home = ({ isLoggedIn, isLoading, isDarkMode, onLogout  }) => {
   const navigate = useNavigate();
 
   // // 로그아웃 처리 함수
@@ -21,15 +22,27 @@ const Home = ({ isLoggedIn, isDarkMode, setDarkMode, onLogout  }) => {
 
   return (
     <>
-      <h1 className="dark:text-white">Welcome to PocketBase Tutorial!</h1>
-      {isLoggedIn && (
-        <button
-          onClick={onLogout}
-          className="border px-2 py-1 bg-red-500 text-white"
-      >
-          Logout
-        </button>
-      )}
+        <div>
+            <h1 className="dark:text-white">Welcome to PocketBase Tutorial!</h1>
+            {isLoggedIn && (
+                <button
+                onClick={onLogout}
+                className="border px-2 py-1 bg-red-500 text-white"
+                >
+                Logout
+                </button>
+                
+                )}
+
+            <Button
+                type= 'login'
+                isLoading={isLoading} 
+                isDarkMode= {isDarkMode}
+                label = 'Test'
+                className='mt-3'
+                disabled={true}  // 버튼을 활성화
+                />
+        </div>
     </>
   );
 };

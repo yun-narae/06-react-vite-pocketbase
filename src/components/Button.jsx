@@ -1,63 +1,81 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FaGoogle, FaFacebook } from 'react-icons/fa'; // 예시 아이콘 (react-icons 패키지)
+import { FaGoogle, FaFacebook } from 'react-icons/fa';
 
 export const Button = ({
-  type = 'default', // 버튼 타입 (Social Login, 로그인/로그아웃, 다크모드 토글)
-  size = 'medium', // 버튼 크기 (sm, md, lg)
+  type = 'default',
+  size = 'medium',
   label,
+  className,
+  disabled = false, // disabled 기본값 설정
   onClick,
-  isLoading = false, // 로딩 상태
-  isDarkMode = false, // 다크 모드 상태
-  backgroundColor = null, // 배경색
-  borderColor = null, // 테두리 색상
-  showIcon = false, // 아이콘 표시 여부 (SocialButton에서만 사용)
-  icon = '', // 사용할 아이콘 종류 (google, facebook 등)
+  isLoading = false,
+  isDarkMode = false,
+  backgroundColor = null,
+  borderColor = null,
+  showIcon = false,
+  icon = '',
   ...props
 }) => {
-  // `type` 값에 따라 버튼 스타일 결정
   let buttonStyles = '';
+  let hoverStyles = ''; // hover 스타일을 따로 설정
+
+  // 각 버튼 타입별 기본 스타일과 hover 스타일을 분리
   switch (type) {
-    case 'social': // 소셜 로그인 버튼
-      buttonStyles = 'bg-blue-600 text-white hover:bg-blue-700';
-      break;
-    case 'login': // 로그인/로그아웃 버튼
-      buttonStyles = 'bg-green-600 text-white hover:bg-green-700';
-      break;
-    case 'darkMode': // 다크모드 토글 버튼
+    case 'social':
       buttonStyles = isDarkMode
-        ? 'bg-gray-700 text-white hover:bg-gray-600'
-        : 'bg-gray-300 text-black hover:bg-gray-400';
+        ? 'bg-yellow-700 text-white'
+        : 'bg-yellow-300 text-black';
+      hoverStyles = isDarkMode
+        ? 'hover:bg-yellow-600'
+        : 'hover:bg-yellow-200';
+      break;
+
+    case 'login':
+      buttonStyles = isDarkMode
+        ? 'bg-blue-700 text-white'
+        : 'bg-blue-500 text-black';
+      hoverStyles = isDarkMode
+        ? 'hover:bg-blue-500'
+        : 'hover:bg-blue-400';
+      break;
+
+    case 'darkMode':
+      buttonStyles = isDarkMode
+        ? 'bg-gray-700 text-white'
+        : 'bg-gray-300 text-black';
+      hoverStyles = isDarkMode
+        ? 'hover:bg-gray-600 hover:font-light'
+        : 'hover:bg-gray-400 hover:font-light';
       label = isDarkMode ? 'Light' : 'Dark';
       break;
+
     default:
-      buttonStyles = 'bg-gray-600 text-white hover:bg-gray-700'; // 기본 버튼
+      buttonStyles = 'bg-gray-600 text-white';
+      hoverStyles = 'hover:bg-gray-700';
   }
 
-  // 크기에 맞는 Tailwind 클래스 설정
+  // isLoading 또는 disabled일 경우 비활성화 처리
+  if (isLoading || disabled) {
+    buttonStyles += 'pointer-events-none cursor-not-allowed opacity-50';
+    hoverStyles = ''; // hover 스타일 비활성화
+  }
+
+  // 크기 클래스 설정
   const sizeClasses = {
-    small: 'px-4 py-2 text-sm', // 작은 버튼
-    medium: 'px-5 py-3 text-base', // 중간 버튼
-    large: 'px-6 py-4 text-lg', // 큰 버튼
+    small: 'px-4 py-2 text-sm',
+    medium: 'px-5 py-3 text-base',
+    large: 'px-6 py-4 text-lg',
   };
-
-  // 배경색이 있을 경우 인라인 스타일로 적용
-  const backgroundStyle = backgroundColor ? { backgroundColor } : {};
-
-  // 선색이 있을 경우 인라인 스타일로 적용
-  const borderStyle = borderColor ? { border: `1px solid ${borderColor}` } : {};
-
-  // 버튼 텍스트와 스타일
-  const buttonDisabled = isLoading; // 로딩 중 버튼 비활성화
 
   // 아이콘 설정
   const renderIcon = () => {
     if (showIcon) {
       switch (icon) {
         case 'google':
-          return <FaGoogle className="mr-2" data-testid="google-icon" />; // 구글 아이콘에 testid 추가
+          return <FaGoogle className="mr-2" />;
         case 'facebook':
-          return <FaFacebook className="mr-2" data-testid="facebook-icon" />; // 페이스북 아이콘에 testid 추가
+          return <FaFacebook className="mr-2" />;
         default:
           return null;
       }
@@ -68,27 +86,28 @@ export const Button = ({
   return (
     <button
       type="button"
-      className={`flex items-center rounded-full font-semibold ${buttonStyles} ${sizeClasses[size]} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${buttonDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-      style={{ ...backgroundStyle, ...borderStyle }} // 객체 결합
-      onClick={!buttonDisabled ? onClick : undefined} // 로딩 중에는 클릭 불가
-      disabled={buttonDisabled} // disabled 속성 적용
+      className={`flex items-center rounded-full ${buttonStyles} ${hoverStyles} ${sizeClasses[size]} ${className}`}
+      onClick={!isLoading && !disabled ? onClick : undefined} // 로딩 중이나 disabled일 때 클릭 불가
       {...props}
+      disabled={isLoading || disabled} // 로딩 중일 때도 비활성화 상태로 처리
     >
       {renderIcon()}
-      {isLoading ? 'Loading...' : label } {/* 로딩 중 텍스트 변경 */}
+      {isLoading ? 'Loading...' : label}
     </button>
   );
 };
 
 Button.propTypes = {
-  type: PropTypes.oneOf(['default', 'social', 'login', 'darkMode']), // 버튼 타입
-  size: PropTypes.oneOf(['small', 'medium', 'large']), // 버튼 크기
-  label: PropTypes.string.isRequired, // 버튼 텍스트
-  onClick: PropTypes.func, // 클릭 핸들러
-  isLoading: PropTypes.bool, // 로딩 상태
-  isDarkMode: PropTypes.bool, // 다크 모드 상태
-  backgroundColor: PropTypes.string, // 배경색
-  borderColor: PropTypes.string, // 테두리 색상
-  showIcon: PropTypes.bool, // 아이콘 표시 여부 (SocialButton에서만 사용)
-  icon: PropTypes.oneOf(['google', 'facebook']), // 사용할 아이콘 종류
+  type: PropTypes.oneOf(['default', 'social', 'login', 'darkMode']),
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  label: PropTypes.string.isRequired,
+  className: PropTypes.string,
+  onClick: PropTypes.func,
+  isLoading: PropTypes.bool,
+  isDarkMode: PropTypes.bool,
+  backgroundColor: PropTypes.string,
+  borderColor: PropTypes.string,
+  showIcon: PropTypes.bool,
+  icon: PropTypes.oneOf(['google', 'facebook']),
+  disabled: PropTypes.bool, // disabled props 정의
 };

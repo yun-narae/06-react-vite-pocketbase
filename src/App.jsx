@@ -88,6 +88,7 @@ function App() {
                             isLoggedIn={isLoggedIn} 
                             setIsLoggedIn={setIsLoggedIn} 
                             setLoggedInUserId={setLoggedInUserId} 
+                            isDarkMode={isDarkMode}
                             onLogout={handleLogout} // 로그아웃 함수 전달
                         />}
                     />

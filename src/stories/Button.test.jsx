@@ -51,8 +51,8 @@ describe('Button Component', () => {
     expect(button).toHaveTextContent('Login');
     
     // 로그인 버튼 스타일 확인
-    expect(button).toHaveClass('bg-green-600');
-    expect(button).toHaveClass('text-white');
+    expect(button).toHaveClass('bg-blue-500');
+    expect(button).toHaveClass('text-black');
   });
 
   test('다크모드 토글 버튼 (darkMode) 렌더링 확인', () => {
@@ -85,9 +85,9 @@ describe('Button Component', () => {
     expect(button).toHaveTextContent('Loading...');
     
     // 버튼이 비활성화 상태일 때 클릭이 불가능한지 확인
-    expect(button).toBeDisabled();
+    expect(button).toBeDisabled(); // 이제 정상적으로 disabled 상태 확인 가능
   });
-
+  
   test('로딩 상태가 아닐 때 버튼 텍스트 확인', () => {
     render(<Button type="default" label="Submit" isLoading={false} />);
     const button = screen.getByRole('button');
