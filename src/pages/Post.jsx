@@ -4,7 +4,6 @@ import getPbImageURL from "../lib/getPbImageURL";
 
 const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) => {
     const user = pb.authStore.model;
-    const avatarRef = useRef(null);
     const fileInputRef = useRef(null);
     const [postData, setPostData] = useState([]);
     const [title, setTitle] = useState("");
@@ -31,7 +30,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         }
     };
 
-    const uploadFile = async (e) => {
+    const uploadFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
         setPostImg(file);
@@ -54,7 +53,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
             if (postImg) {
                 formData.append("field", postImg);
             }
-            const newPost = await pb.collection("post").create(formData);
+            await pb.collection("post").create(formData);
             fetchPosts();
             setTitle("");
             setText("");
@@ -67,41 +66,62 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         }
     };
 
+    const handleDelete = async (post) => {
+        if (post.editor !== user.name) {
+            alert("삭제할 권한이 없습니다.");
+            return;
+        }
+        if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
+        try {
+            await pb.collection("post").delete(post.id);
+            fetchPosts();
+        } catch (error) {
+            console.error("게시물 삭제 실패:", error);
+        }
+    };
+
+    const handleEdit = (post) => {
+        if (post.editor !== user.name) {
+            alert("수정할 권한이 없습니다.");
+            return;
+        }
+        setEditPost(post);
+        setTitle(post.title);
+        setText(post.text);
+        setPreviewImg(post.field ? getPbImageURL(post, "field") : null);
+        setShowModal(true);
+    };
+
+    const handleUpdate = async () => {
+        if (!editPost) return;
+        setUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append("title", title);
+            formData.append("text", text);
+            if (postImg) {
+                formData.append("field", postImg);
+            }
+            await pb.collection("post").update(editPost.id, formData);
+            fetchPosts();
+            setShowModal(false);
+        } catch (error) {
+            console.error("게시물 수정 실패:", error);
+        } finally {
+            setUploading(false);
+        }
+    };
+
     return (
         <>
             <h1 className="text-2xl pb-4 dark:text-white">Post 기능구현</h1>
             <form onSubmit={handleSubmit} className="mb-4">
-                <input 
-                    type="text" 
-                    value={title} 
-                    onChange={(e) => setTitle(e.target.value)} 
-                    placeholder="제목을 입력하세요" 
-                    className="w-full p-2 border rounded"
-                />
-                <textarea 
-                    value={text} 
-                    onChange={(e) => setText(e.target.value)} 
-                    placeholder="내용을 입력하세요" 
-                    className="w-full p-2 border rounded mt-2"
-                />
-                <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    onChange={uploadFile} 
-                    className="mt-2"
-                />
-                {previewImg && (
-                    <div className="mt-2">
-                        <img ref={avatarRef} src={previewImg} alt="미리보기" className="w-20 h-20 object-cover rounded" />
-                    </div>
-                )}
-                <button 
-                    type="submit" 
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
-                    disabled={uploading}
-                >
-                    {uploading ? "업로드 중..." : "업로드"}
-                </button>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" className="w-full p-2 border rounded" />
+                <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="내용을 입력하세요" className="w-full p-2 border rounded mt-2" />
+                <input type="file" ref={fileInputRef} onChange={uploadFile} className="mt-2" />
+                {previewImg && <img src={previewImg} alt="미리보기" className="w-20 h-20 object-cover rounded mt-2" />}
+                <button type="submit" className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400" disabled={uploading}>{uploading ? "업로드 중..." : "업로드"}</button>
             </form>
             <ul className="mt-4">
                 {postData.map((post) => (
@@ -109,16 +129,27 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                         <p>{post.editor}님</p>
                         <p>{post.title}</p>
                         <p>{post.text}</p>
-                        {post.field && (
-                            <img 
-                                src={getPbImageURL(post, "field")} 
-                                alt={post.title} 
-                                className="w-40 h-40 object-cover rounded"
-                            />
+                        {post.field && <img src={getPbImageURL(post, "field")} alt={post.title} className="w-40 h-40 object-cover rounded" />}
+                        {post.editor === user.name && (
+                            <>
+                                <button onClick={() => handleEdit(post)} className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded">수정</button>
+                                <button onClick={() => handleDelete(post)} className="ml-2 px-2 py-1 bg-red-500 text-white rounded">삭제</button>
+                            </>
                         )}
                     </li>
                 ))}
             </ul>
+            {showModal && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-4 rounded shadow-lg">
+                        <h2>게시물 수정</h2>
+                        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2 border rounded" />
+                        <textarea value={text} onChange={(e) => setText(e.target.value)} className="w-full p-2 border rounded mt-2" />
+                        <button onClick={handleUpdate} className="mt-4 px-4 py-2 bg-green-500 text-white rounded">수정 완료</button>
+                        <button onClick={() => setShowModal(false)} className="ml-2 px-4 py-2 bg-gray-500 text-white rounded">취소</button>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
