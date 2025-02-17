@@ -46,6 +46,15 @@ const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }
                         FavoriteFiles
                     </Link>
                 </li>
+                <li>
+                    <Link 
+                        to="/post" 
+                        className="hover:underline"
+                        style={{ pointerEvents: isLoading ? 'none' : 'auto' }} // 로딩 중에는 클릭 방지
+                    >
+                        Post
+                    </Link>
+                </li>
                 
                 {!isLoggedIn && (
                     <>
