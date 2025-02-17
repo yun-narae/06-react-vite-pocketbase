@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import pb from "../lib/pocketbase";
 import getPbImageURL from "../lib/getPbImageURL";
 
 const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) => {
     const user = pb.authStore.model;
+    const avatarRef = useRef(null);
+    const fileInputRef = useRef(null);
     const [postData, setPostData] = useState([]);
-    const [dataloading, setDataLoading] = useState(true);
     const [title, setTitle] = useState("");
     const [text, setText] = useState("");
-    const [image, setImage] = useState(null);
+    const [postImg, setPostImg] = useState(null);
+    const [previewImg, setPreviewImg] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const [editPost, setEditPost] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         fetchPosts();
@@ -17,25 +21,21 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
 
     const fetchPosts = async () => {
         setIsLoading(true);
-        setDataLoading(true);
         try {
-            const posts = await pb.collection("post").getFullList({ autoCancel: false });
-            setPostData(
-                posts.map((post) => ({
-                    id: post.id,
-                    imageUrl: getPbImageURL(post, "photo"),
-                    title: post.title || "No title",
-                    editor: post.editor || "No editor",
-                    text: post.text || "No text",
-                    update: post.update || "No update",
-                }))
-            );
+            const posts = await pb.collection("post").getFullList({ autoCancel: false, expand: "field" });
+            setPostData(posts);
         } catch (error) {
-            console.error("Error fetching files:", error);
+            console.error("Error fetching posts:", error);
         } finally {
             setIsLoading(false);
-            setDataLoading(false);
         }
+    };
+
+    const uploadFile = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setPostImg(file);
+        setPreviewImg(URL.createObjectURL(file));
     };
 
     const handleSubmit = async (e) => {
@@ -49,14 +49,17 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
             const formData = new FormData();
             formData.append("title", title);
             formData.append("text", text);
+            formData.append("editor", user.name);
             formData.append("user", user.id);
-            if (image) formData.append("photo", image);
-            
-            await pb.collection("post").create(formData);
-            fetchPosts(); // 새로고침 없이 리스트 갱신
+            if (postImg) {
+                formData.append("field", postImg);
+            }
+            const newPost = await pb.collection("post").create(formData);
+            fetchPosts();
             setTitle("");
             setText("");
-            setImage(null);
+            setPostImg(null);
+            setPreviewImg(null);
         } catch (error) {
             console.error("게시물 업로드 실패:", error);
         } finally {
@@ -83,9 +86,15 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                 />
                 <input 
                     type="file" 
-                    onChange={(e) => setImage(e.target.files[0])} 
+                    ref={fileInputRef}
+                    onChange={uploadFile} 
                     className="mt-2"
                 />
+                {previewImg && (
+                    <div className="mt-2">
+                        <img ref={avatarRef} src={previewImg} alt="미리보기" className="w-20 h-20 object-cover rounded" />
+                    </div>
+                )}
                 <button 
                     type="submit" 
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
@@ -94,24 +103,18 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                     {uploading ? "업로드 중..." : "업로드"}
                 </button>
             </form>
-            <ul>
+            <ul className="mt-4">
                 {postData.map((post) => (
                     <li key={post.id} className="border p-4 mb-2 rounded">
-                        <p className="text-black font-bold pb-2">{user.name}님</p>
-                        <p className="text-gray-900">{post.title}</p>
-                        <p className="text-gray-500">{post.text}</p>
-                        {post.imageUrl && (
-                            <figure className="rounded-xl overflow-hidden mb-2 flex items-center h-[180px] md:h-[240px] lg:h-[320px]">
-                                <img 
-                                    src={post.imageUrl} 
-                                    alt={post.title} 
-                                    loading="lazy"
-                                    decoding="async"
-                                    width="800px"
-                                    height="800px"
-                                    className="w-full"
-                                />
-                            </figure>
+                        <p>{post.editor}님</p>
+                        <p>{post.title}</p>
+                        <p>{post.text}</p>
+                        {post.field && (
+                            <img 
+                                src={getPbImageURL(post, "field")} 
+                                alt={post.title} 
+                                className="w-40 h-40 object-cover rounded"
+                            />
                         )}
                     </li>
                 ))}
