@@ -18,6 +18,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         fetchPosts();
     }, []);
 
+    // 게시물 목록을 가져오는 함수
     const fetchPosts = async () => {
         setIsLoading(true);
         try {
@@ -30,6 +31,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         }
     };
 
+    // 파일 업로드 및 미리보기 설정
     const uploadFile = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -37,6 +39,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         setPreviewImg(URL.createObjectURL(file));
     };
 
+    // 새 게시물 업로드 함수
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!title || !text || !user) {
@@ -66,6 +69,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         }
     };
 
+    // 게시물 삭제 함수
     const handleDelete = async (post) => {
         if (post.editor !== user.name) {
             alert("삭제할 권한이 없습니다.");
@@ -81,6 +85,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         }
     };
 
+    // 게시물 수정 모달 열기
     const handleEdit = (post) => {
         if (post.editor !== user.name) {
             alert("수정할 권한이 없습니다.");
@@ -93,6 +98,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         setShowModal(true);
     };
 
+    // 게시물 수정 함수
     const handleUpdate = async () => {
         if (!editPost) return;
         setUploading(true);
@@ -116,6 +122,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
     return (
         <>
             <h1 className="text-2xl pb-4 dark:text-white">Post 기능구현</h1>
+            {/* 게시물 작성 폼 */}
             <form onSubmit={handleSubmit} className="mb-4">
                 <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" className="w-full p-2 border rounded" />
                 <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="내용을 입력하세요" className="w-full p-2 border rounded mt-2" />
@@ -123,6 +130,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                 {previewImg && <img src={previewImg} alt="미리보기" className="w-20 h-20 object-cover rounded mt-2" />}
                 <button type="submit" className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400" disabled={uploading}>{uploading ? "업로드 중..." : "업로드"}</button>
             </form>
+            {/* 게시물 리스트 */}
             <ul className="mt-4">
                 {postData.map((post) => (
                     <li key={post.id} className="border p-4 mb-2 rounded">
@@ -139,6 +147,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                     </li>
                 ))}
             </ul>
+            {/* 게시물 수정 모달 */}
             {showModal && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-4 rounded shadow-lg">
