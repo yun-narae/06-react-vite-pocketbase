@@ -130,7 +130,6 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                 {previewImg && <img src={previewImg} alt="미리보기" className="w-20 h-20 object-cover rounded mt-2" />}
                 <button type="submit" className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400" disabled={uploading}>{uploading ? "업로드 중..." : "업로드"}</button>
             </form>
-            {/* 게시물 리스트 */}
             <ul className="mt-4">
                 {postData.map((post) => (
                     <li key={post.id} className="border p-4 mb-2 rounded">
@@ -147,7 +146,6 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                     </li>
                 ))}
             </ul>
-            {/* 게시물 수정 모달 */}
             {showModal && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-4 rounded shadow-lg">
