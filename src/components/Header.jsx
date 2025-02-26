@@ -17,7 +17,7 @@ const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }
     }, []);
 
     return (
-        <nav className="fixed w-full p-4 bg-gray-200 dark:bg-gray-800">
+        <nav className="z-10 fixed w-full p-4 bg-gray-200 dark:bg-gray-800">
             <ul className="flex gap-4 items-center text-black dark:text-white">
                 <li>
                     <Link 
