@@ -23,7 +23,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
     const [selectedImage, setSelectedImage] = useState(null);
     const [filteredPosts, setFilteredPosts] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-
+    const [filterOption, setFilterOption] = useState("all");
 
     useEffect(() => {
         fetchPosts();
@@ -35,12 +35,15 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
     }, []);
 
     // 게시물 목록을 가져오는 함수
-    const fetchPosts = async () => {
+const fetchPosts = async () => {
         setIsLoading(true);
         try {
             const posts = await pb.collection("post").getFullList({ autoCancel: false });
+            posts.forEach(post => {
+                post.updated = post.updated.split("T")[0];
+            });
             setPostData(posts);
-            setFilteredPosts(posts);
+            setFilteredPosts(posts.sort((a, b) => new Date(b.updated) - new Date(a.updated)));
         } catch (error) {
             console.error("Error fetching posts:", error);
         } finally {
@@ -83,6 +86,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
             formData.append("text", text);
             formData.append("editor", user.name);
             formData.append("user", user.id);
+            formData.append("updated", new Date().toISOString().split("T")[0]);
             postImgs.forEach((img) => formData.append("field", img));
             await pb.collection("post").create(formData);
             fetchPosts();
@@ -160,13 +164,37 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         setSelectedImage(null);
     };
 
+    // 검색어 입력 시 게시물 필터링
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
         setSearchQuery(query);
-        const filtered = postData.filter(post => 
-            post.title.toLowerCase().includes(query) || 
-            post.text.toLowerCase().includes(query)
-        );
+        filterPosts(query, filterOption);
+    };
+
+    // 필터 변경 시 게시물 필터링
+    const handleFilterChange = (e) => {
+        const selectedOption = e.target.value;
+        setFilterOption(selectedOption);
+        filterPosts(searchQuery, selectedOption);
+    };
+
+    // 게시물 필터링 함수 (검색어 + 필터)
+    const filterPosts = (query, filter) => {
+        let filtered = [...postData];
+
+        if (filter === "myPosts") {
+            filtered = filtered.filter(post => post.editor === user.name);
+        } else if (filter === "latest") {
+            filtered = filtered.sort((a, b) => new Date(b.created) - new Date(a.created));
+        }
+
+        if (query) {
+            filtered = filtered.filter(post => 
+                post.title.toLowerCase().includes(query) || 
+                post.text.toLowerCase().includes(query)
+            );
+        }
+
         setFilteredPosts(filtered);
     };
 
@@ -177,13 +205,21 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                     <h1 className="text-2xl pb-4 dark:text-white">Post 기능구현</h1>
                     <button onClick={handleNewPost} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">작성하기</button>
                 </div>
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    placeholder="검색어를 입력하세요"
-                    className="p-2 border rounded mt-4"
-                />
+                {/* 검색 및 필터링 */}
+                <div className="flex gap-4 mt-4">
+                    <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        placeholder="검색어를 입력하세요"
+                        className="w-full p-2 border rounded"
+                    />
+                    <select onChange={handleFilterChange} value={filterOption} className="px-4 py-2 border rounded">
+                        <option value="all">기본 보기</option>
+                        <option value="myPosts">내 게시물 보기</option>
+                        <option value="latest">최신 글 보기</option>
+                    </select>
+                </div>
                 {/* 게시물 작성 폼 */}
                 {creatModal && (
                     <div className="z-10 p-4 fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
@@ -212,9 +248,10 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                 <ul className="mt-4 w-full md:w-4/5">
                     {filteredPosts.map((post) => (
                         <li key={post.id} className="border p-4 mb-2 rounded overflow-hidden">
-                            <p>{post.editor}님</p>
+                            <p className="font-bold">{post.editor}님</p>
                             <p>{post.title}</p>
                             <p>{post.text}</p>
+                            <p className="text-sm text-gray-500">{new Date(post.updated).toISOString().split("T")[0]}</p>
                             {post.field && Array.isArray(post.field) ? (
                                 <div>
                                     {isMobile ? (
@@ -272,8 +309,8 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                                 ))}
                             </div>
                             <input type="file" onChange={uploadFiles} className="mt-2" multiple accept="image/*" />
-                            <button onClick={handleUpdate} className="mt-4 px-4 py-2 bg-green-500 text-white rounded">수정 완료</button>
-                            <button onClick={() => setEditModal(false)} className="ml-2 px-4 py-2 bg-gray-500 text-white rounded">취소</button>
+                            <button onClick={handleUpdate} className="mt-4 px-4 py-2 bg-green-500 text-white rounded" disabled={uploading}>{uploading ? "업로드 중..." : "수정 완료"}</button>
+                            <button onClick={() => setEditModal(false)} className="ml-2 px-4 py-2 bg-gray-500 text-white rounded" disabled={uploading}>{uploading ? "업로드 중..." : "취소"}</button>
                         </div>
                     </div>
                 )}
