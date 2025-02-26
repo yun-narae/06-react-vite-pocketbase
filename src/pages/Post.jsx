@@ -17,14 +17,15 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
     const [uploading, setUploading] = useState(false);
     const [editPost, setEditPost] = useState(null);
     const [editModal, setEditModal] = useState(false);
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 360);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
     const [isCreating, setIsCreating] = useState(false);
     const [creatModal, setCreatModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         fetchPosts();
         const handleResize = () => {
-            setIsMobile(window.innerWidth <= 360);
+            setIsMobile(window.innerWidth <= 500);
         };
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
@@ -128,7 +129,6 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         setPostImgs(prev => prev.filter((_, i) => i !== index));
     };
 
-
     const handleUpdate = async () => {
         if (!editPost) return;
         setUploading(true);
@@ -148,6 +148,14 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         }
     };
 
+    const handleImageClick = (imgSrc) => {
+        setSelectedImage(imgSrc);
+    };
+
+    const closeImagePreview = () => {
+        setSelectedImage(null);
+    };
+
     return (
         <>
             <h1 className="text-2xl pb-4 dark:text-white">Post 기능구현</h1>
@@ -164,7 +172,8 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                             <div className="mt-2 flex space-x-2">
                                 {previewImgs.map((img, index) => (
                                     <div key={index} className="relative">
-                                        <img src={img} alt="미리보기" className="w-20 h-20 object-cover rounded" />
+                                        <img src={img} alt="미리보기" className="w-20 h-20 object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80" 
+                                        onClick={() => handleImageClick(img)}/>
                                         <button onClick={(e) => {e.preventDefault(); removePreviewImage(index)}} className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full">X</button>
                                     </div>
                                 ))}
@@ -185,17 +194,20 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                         {post.field && Array.isArray(post.field) ? (
                             <div>
                                 {isMobile ? (
-                                    <Swiper navigation modules={[Navigation]} className="w-40 h-40">
+                                    <Swiper navigation modules={[Navigation]} className="w-48">
                                         {post.field.map((img, index) => (
                                             <SwiperSlide key={index}>
-                                                <img src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} alt={post.title} className="w-40 h-40 object-cover rounded" />
+                                                <img src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} alt={post.title} className="w-48 aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80" 
+                                                onClick={() => handleImageClick(`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`)}
+                                            />
                                             </SwiperSlide>
                                         ))}
                                     </Swiper>
                                 ) : (
                                     <div className="flex space-x-2">
                                         {post.field.map((img, index) => (
-                                            <img key={index} src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} alt={post.title} className="w-40 h-40 object-cover rounded" />
+                                            <img key={index} src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} alt={post.title} className="w-48 aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80" onClick={() => handleImageClick(`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`)}
+                                            />
                                         ))}
                                     </div>
                                 )}
@@ -234,6 +246,28 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                         <input type="file" onChange={uploadFiles} className="mt-2" multiple accept="image/*" />
                         <button onClick={handleUpdate} className="mt-4 px-4 py-2 bg-green-500 text-white rounded">수정 완료</button>
                         <button onClick={() => setEditModal(false)} className="ml-2 px-4 py-2 bg-gray-500 text-white rounded">취소</button>
+                    </div>
+                </div>
+            )}
+            {/* 이미지 확대 모달 */}
+            {selectedImage && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-10" onClick={closeImagePreview}>
+                    <div className="relative">
+                    <img 
+                        src={selectedImage} 
+                        alt="확대된 이미지" 
+                        className="max-w-full max-h-screen rounded"
+                        onClick={(e) => e.stopPropagation()} // 이미지 클릭 시 닫히지 않도록 설정
+                    />
+                        <button 
+                            className="absolute top-2 right-2 bg-white p-1 rounded-full"
+                            onClick={(e) => {
+                                e.stopPropagation(); // X 버튼 클릭 시 닫힘, 부모 이벤트 전파 방지
+                                closeImagePreview();
+                            }}
+                        >
+                            X
+                        </button>
                     </div>
                 </div>
             )}
