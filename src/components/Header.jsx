@@ -17,7 +17,7 @@ const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }
     }, []);
 
     return (
-        <nav className="fixed w-full p-4 bg-gray-200 dark:bg-gray-800">
+        <nav className="z-10 fixed w-full p-4 bg-gray-200 dark:bg-gray-800">
             <ul className="flex gap-4 items-center text-black dark:text-white">
                 <li>
                     <Link 
@@ -44,6 +44,15 @@ const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }
                         style={{ pointerEvents: isLoading ? 'none' : 'auto' }} // 로딩 중에는 클릭 방지
                     >
                         FavoriteFiles
+                    </Link>
+                </li>
+                <li>
+                    <Link 
+                        to="/post" 
+                        className="hover:underline"
+                        style={{ pointerEvents: isLoading ? 'none' : 'auto' }} // 로딩 중에는 클릭 방지
+                    >
+                        Post
                     </Link>
                 </li>
                 
