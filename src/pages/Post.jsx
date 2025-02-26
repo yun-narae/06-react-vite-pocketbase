@@ -21,6 +21,9 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
     const [isCreating, setIsCreating] = useState(false);
     const [creatModal, setCreatModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [filteredPosts, setFilteredPosts] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
+
 
     useEffect(() => {
         fetchPosts();
@@ -37,6 +40,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         try {
             const posts = await pb.collection("post").getFullList({ autoCancel: false });
             setPostData(posts);
+            setFilteredPosts(posts);
         } catch (error) {
             console.error("Error fetching posts:", error);
         } finally {
@@ -156,6 +160,16 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
         setSelectedImage(null);
     };
 
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+        const filtered = postData.filter(post => 
+            post.title.toLowerCase().includes(query) || 
+            post.text.toLowerCase().includes(query)
+        );
+        setFilteredPosts(filtered);
+    };
+
     return (
         <>
             <section className="flex justify-center content-center flex-wrap flex-col">
@@ -163,6 +177,13 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                     <h1 className="text-2xl pb-4 dark:text-white">Post 기능구현</h1>
                     <button onClick={handleNewPost} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">작성하기</button>
                 </div>
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    placeholder="검색어를 입력하세요"
+                    className="p-2 border rounded mt-4"
+                />
                 {/* 게시물 작성 폼 */}
                 {creatModal && (
                     <div className="z-10 p-4 fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
@@ -189,7 +210,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                 )}
                 {/* 게시물 목록 */}
                 <ul className="mt-4 w-full md:w-4/5">
-                    {postData.map((post) => (
+                    {filteredPosts.map((post) => (
                         <li key={post.id} className="border p-4 mb-2 rounded overflow-hidden">
                             <p>{post.editor}님</p>
                             <p>{post.title}</p>
@@ -245,7 +266,7 @@ const Post = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) 
                                 ))}
                                 {previewImgs.map((img, index) => (
                                     <div key={index} className="relative">
-                                        <img src={img} alt="미리보기" className="w-20 h-20 object-cover rounded" />
+                                        <img src={img} alt="미리보기" className="w-20 h-20 object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80" onClick={() => handleImageClick(img)}/>
                                         <button onClick={() => removePreviewImage(index)} className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full">X</button>
                                     </div>
                                 ))}
