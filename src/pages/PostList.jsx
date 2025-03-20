@@ -17,7 +17,7 @@ const PostList = ({
     const [searchQuery, setSearchQuery] = useState("");
     const [filterOption, setFilterOption] = useState("all");
     const [filteredPosts, setFilteredPosts] = useState([...postData]);
-    
+
     // 🔹 컴포넌트가 마운트되거나 postData가 변경될 때 기본 필터 적용
     useEffect(() => {
         if (isDataLoaded) {
