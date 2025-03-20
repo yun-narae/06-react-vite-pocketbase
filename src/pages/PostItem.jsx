@@ -7,6 +7,7 @@ import { Navigation } from 'swiper/modules';
 import PostEditModal from "./PostEditModal";
 import useImageViewer from "../hooks/useImageViewer"; // 🔥 커스텀 훅 추가
 import PostImageModal from "./PostImageModal";
+import { useNavigate } from "react-router-dom";
 
 
 const PostItem = ({ 
@@ -22,6 +23,7 @@ const PostItem = ({
     setIsMobile 
 }) => {
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer(); // 🔥 커스텀 훅 사용
+    const navigate = useNavigate();
     
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 500);
@@ -52,12 +54,16 @@ const PostItem = ({
     };
 
     return (
-        <li className="border p-4 mb-2 rounded">
+        <li 
+            className="border p-4 mb-2 rounded"
+            onClick={() => navigate(`/post/${post.id}`)}
+        >
             <p className="font-bold">{post.editor}님</p>
             <p>{post.title}</p>
             <p>{post.text}</p>
             <p className="text-sm text-gray-500">{new Date(post.updated).toISOString().split("T")[0]}</p>
-
+            <p className="text-sm text-blue-500">댓글 {post.commentCount || 0}개</p>
+            
             {post.field && Array.isArray(post.field) ? (
                 <div>
                     {isMobile ? (
