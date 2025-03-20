@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import pb from "../lib/pocketbase";
+import PostImageModal from "./PostImageModal";
+import useImageViewer from "../hooks/useImageViewer";
+import PostContent from "./PostContent"; // ✅ 공통 컴포넌트 사용
+import PostEditModal from "./PostEditModal";
 
 const PostDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
+    const [editPost, setEditPost] = useState(null);
+    const [editModal, setEditModal] = useState(false);
     const [post, setPost] = useState(null);
-    const [comments, setComments] = useState([]);
-    const [newComment, setNewComment] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer();
+    
+    const user = pb.authStore.model; // ✅ 현재 로그인된 사용자 가져오기
 
     useEffect(() => {
         fetchPost();
-        fetchComments();
     }, []);
 
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 500);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+    // 해당하는 id의 게시물 가져오기
     const fetchPost = async () => {
         try {
             const postData = await pb.collection("post").getOne(id);
@@ -23,41 +38,40 @@ const PostDetail = () => {
         }
     };
 
-    const fetchComments = async () => {
+    // 전체 게시물 목록을 업데이트
+    const fetchPosts = async () => {
+        setIsLoading(true);
         try {
-            const commentsData = await pb.collection("comments").getFullList({
-                filter: `post="${id}"`,
-            });
-            setComments(commentsData);
+            await pb.collection("post").getFullList({ autoCancel: false });
+            setIsLoading(false);
+            fetchPost(); // ✅ 목록을 업데이트한 후 현재 게시물을 다시 가져와 최신 데이터 반영
         } catch (error) {
-            console.error("댓글 로드 실패:", error);
+            console.error("게시물 목록 가져오기 실패:", error);
+            setIsLoading(false);
         }
     };
 
-    const handleAddComment = async () => {
-        if (!newComment.trim()) return;
+    // 게시물 삭제
+    const handleDelete = async (post) => {
+        if (post.editor !== user.name) {
+            alert("삭제할 권한이 없습니다.");
+            return;
+        }
+        if (!window.confirm("정말 삭제하시겠습니까?")) return;
 
         try {
-            const newCommentData = await pb.collection("comments").create({
-                post: id,
-                text: newComment,
-            });
-            setComments([...comments, newCommentData]);
-            setNewComment("");
+            await pb.collection("post").delete(post.id);
+            fetchPosts(); // ✅ 목록을 업데이트하고 리렌더링
+            navigate(-1); // ✅ 삭제 후 목록으로 이동
         } catch (error) {
-            console.error("댓글 추가 실패:", error);
+            console.error("게시물 삭제 실패:", error);
         }
     };
 
-    const handleDeleteComment = async (commentId) => {
-        if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
-
-        try {
-            await pb.collection("comments").delete(commentId);
-            setComments(comments.filter((c) => c.id !== commentId));
-        } catch (error) {
-            console.error("댓글 삭제 실패:", error);
-        }
+    // 게시물 수정 모달
+    const handleEdit = (post) => {
+        setEditPost(post); 
+        setEditModal(true); 
     };
 
     if (!post) return <p>게시물을 불러오는 중...</p>;
@@ -65,28 +79,32 @@ const PostDetail = () => {
     return (
         <div className="max-w-2xl mx-auto p-4">
             <button onClick={() => navigate(-1)} className="text-blue-500 mb-4">← 뒤로가기</button>
-            <h2 className="text-xl font-bold">{post.title}</h2>
-            <p className="text-gray-700">{post.text}</p>
 
-            <div className="mt-6">
-                <h3 className="text-lg font-bold">댓글 ({comments.length})</h3>
-                <div className="mt-2">
-                    {comments.map((comment) => (
-                        <div key={comment.id} className="border p-2 mt-2 flex justify-between">
-                            <p>{comment.text}</p>
-                            <button onClick={() => handleDeleteComment(comment.id)} className="text-red-500">삭제</button>
-                        </div>
-                    ))}
-                </div>
-                <input
-                    type="text"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="댓글을 입력하세요"
-                    className="w-full p-2 border mt-2"
+            {post && (
+                <PostContent 
+                    post={post} 
+                    user={user} 
+                    isMobile={isMobile} 
+                    handleDelete={handleDelete}
+                    handleEdit={handleEdit}
+                    handleImageClick={handleImageClick}
                 />
-                <button onClick={handleAddComment} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">댓글 작성</button>
-            </div>
+            )}
+
+            {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
+            {selectedImage && (
+                <PostImageModal selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
+            )}
+
+            {editModal && editPost && (
+                <PostEditModal 
+                    onClick={(e) => e.stopPropagation()}
+                    editPost={editPost} 
+                    setEditPost={setEditPost} 
+                    setEditModal={setEditModal} 
+                    fetchPosts={fetchPosts} 
+                />
+            )}
         </div>
     );
 };

@@ -1,14 +1,11 @@
 import React, { useEffect } from "react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/navigation';
 import pb from "../lib/pocketbase";
 import { Navigation } from 'swiper/modules';
 import PostEditModal from "./PostEditModal";
 import useImageViewer from "../hooks/useImageViewer"; // 🔥 커스텀 훅 추가
 import PostImageModal from "./PostImageModal";
 import { useNavigate } from "react-router-dom";
-
+import PostContent from "./PostContent";
 
 const PostItem = ({ 
     user, 
@@ -18,7 +15,6 @@ const PostItem = ({
     setEditPost, 
     editModal, 
     setEditModal, 
-    // handleImageClick, // ✅ 부모에서 handleImageClick 전달받음
     isMobile, 
     setIsMobile 
 }) => {
@@ -55,60 +51,18 @@ const PostItem = ({
 
     return (
         <li 
-            className="border p-4 mb-2 rounded"
-            onClick={() => navigate(`/post/${post.id}`)}
+            className="border p-4 mb-2 rounded cursor-pointer hover:bg-slate-100"
+            onClick={() => navigate(`/post/${post.id}`)} // ✅ `state`로 값 전달
         >
-            <p className="font-bold">{post.editor}님</p>
-            <p>{post.title}</p>
-            <p>{post.text}</p>
-            <p className="text-sm text-gray-500">{new Date(post.updated).toISOString().split("T")[0]}</p>
-            <p className="text-sm text-blue-500">댓글 {post.commentCount || 0}개</p>
-            
-            {post.field && Array.isArray(post.field) ? (
-                <div>
-                    {isMobile ? (
-                        <Swiper navigation modules={[Navigation]} className="">
-                            {post.field.map((img, index) => (
-                                <SwiperSlide key={index}>
-                                    <img 
-                                        src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} 
-                                        alt={post.title} 
-                                        className="aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
-                                        onClick={() => handleImageClick(img, post, true)} // ✅ 기존 이미지 클릭 시 PostImageModal 실행
-                                    />
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    ) : (
-                        <div className="flex space-x-2 bg-blue-400">
-                            {post.field.map((img, index) => (
-                                <img 
-                                    key={index} 
-                                    src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} 
-                                    alt={post.title} 
-                                    className="w-[32.5%] md:w-[32.8%] aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80" 
-                                    onClick={() => handleImageClick(img, post, true)} // ✅ 기존 이미지 클릭 시 PostImageModal 실행
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ) : null}
-
-            {post.editor === user.name && (
-                <>
-                    <button 
-                        onClick={() => handleEdit(post)} 
-                        className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded">
-                        수정
-                    </button>
-                    <button 
-                        onClick={() => handleDelete(post)} 
-                        className="ml-2 px-2 py-1 bg-red-500 text-white rounded">
-                        삭제
-                    </button>
-                </>
-            )}
+            <PostContent 
+                onClick={(e) => e.stopPropagation()} /* ✅ 부모 이벤트 방지 적용 */
+                post={post} 
+                user={user} 
+                isMobile={isMobile}
+                handleDelete={handleDelete} 
+                handleEdit={handleEdit}
+                handleImageClick={handleImageClick}
+            />
 
             {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
             {selectedImage && (
@@ -120,6 +74,7 @@ const PostItem = ({
 
             {editModal && editPost && (
                 <PostEditModal 
+                    onClick={(e) => e.stopPropagation()} /* ✅ 부모 이벤트 방지 적용 */
                     editPost={editPost} 
                     setEditPost={setEditPost} 
                     setEditModal={setEditModal} 
