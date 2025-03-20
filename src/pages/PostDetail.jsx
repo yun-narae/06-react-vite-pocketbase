@@ -5,8 +5,10 @@ import PostImageModal from "./PostImageModal";
 import useImageViewer from "../hooks/useImageViewer";
 import PostContent from "./PostContent"; // ✅ 공통 컴포넌트 사용
 import PostEditModal from "./PostEditModal";
+import { useUser } from "../context/UserContext"; // ✅ Context에서 `user` 가져오기
 
 const PostDetail = () => {
+    const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
     const { id } = useParams();
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
@@ -15,8 +17,6 @@ const PostDetail = () => {
     const [post, setPost] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer();
-    
-    const user = pb.authStore.model; // ✅ 현재 로그인된 사용자 가져오기
 
     useEffect(() => {
         fetchPost();
@@ -83,7 +83,7 @@ const PostDetail = () => {
             {post && (
                 <PostContent 
                     post={post} 
-                    user={user} 
+                    user={user} // ✅ Context에서 가져온 `user` 전달
                     isMobile={isMobile} 
                     handleDelete={handleDelete}
                     handleEdit={handleEdit}

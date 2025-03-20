@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import pb from "../lib/pocketbase";
 import PostList from "./PostList";
 import PostModal from "./PostModal";
-
+import { useUser } from "../context/UserContext"; // ✅ Context에서 `user` 가져오기
 
 const Post = () => {
-    const user = pb.authStore.model;
+    const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
     const [postData, setPostData] = useState([]);
     const [editPost, setEditPost] = useState(null);
     const [editModal, setEditModal] = useState(false);
