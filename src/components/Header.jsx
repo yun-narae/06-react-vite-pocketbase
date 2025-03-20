@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import pb from "../lib/pocketbase";
 import { useEffect } from "react";
 import { Button } from "../components/Button";
+import { useUser } from "../context/UserContext"; // ✅ Context에서 `user` 가져오기
 
-const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) => {    const user = pb.authStore.model;
-
+const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }) => { 
+    const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
+    
     const toggleDarkMode = () => {
         setDarkMode(!isDarkMode); // 다크모드 상태 반전
     };

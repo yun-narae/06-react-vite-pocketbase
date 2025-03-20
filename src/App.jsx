@@ -11,6 +11,7 @@ import FileList from "./pages/FileList";
 import FavoriteFiles from "./pages/FavoriteFiles";
 import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
+import { UserProvider } from "./context/UserContext"; // ✅ UserContext 추가
 
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
@@ -74,51 +75,53 @@ function App() {
     };
 
     return (
-        <Router basename={process.env.VITE_PUBLIC_URL}>
-            <Header 
-                isLoggedIn={isLoggedIn} 
-                isDarkMode={isDarkMode} 
-                setDarkMode={setDarkMode}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-            />
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route
-                        index
-                        element={<Home 
-                            isLoggedIn={isLoggedIn} 
-                            setIsLoggedIn={setIsLoggedIn} 
-                            setLoggedInUserId={setLoggedInUserId} 
-                            isDarkMode={isDarkMode}
-                            onLogout={handleLogout} // 로그아웃 함수 전달
-                        />}
-                    />
-                    <Route path="/login" element={<Login 
-                            isLoggedIn={isLoggedIn} 
-                            setIsLoggedIn={setIsLoggedIn} 
-                            setLoggedInUserId={setLoggedInUserId}
-                            isLoading={isLoading}
-                            setIsLoading={setIsLoading}
-                        />} />
-                    <Route path="/register" element={<Register isLoading={isLoading} setIsLoading={setIsLoading}/>} />
-                    <Route path="/registration-success" element={<RegistrationSuccess isLoading={isLoading} setIsLoading={setIsLoading}/>} />
-                    <Route 
-                        path="/fileList" 
-                        element={<FileList isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
-                    />
-                    <Route 
-                        path="/favorites" 
-                        element={<FavoriteFiles isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
-                    />
-                    <Route 
-                        path="/post"
-                        element={<Post isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>}
-                    />
-                    <Route path="/post/:id" element={<PostDetail />} />
-                </Route>
-            </Routes>
-        </Router>
+        <UserProvider> {/* ✅ `user`를 전역에서 관리하도록 설정 */}
+            <Router basename={process.env.VITE_PUBLIC_URL}>
+                <Header 
+                    isLoggedIn={isLoggedIn} 
+                    isDarkMode={isDarkMode} 
+                    setDarkMode={setDarkMode}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                />
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route
+                            index
+                            element={<Home 
+                                isLoggedIn={isLoggedIn} 
+                                setIsLoggedIn={setIsLoggedIn} 
+                                setLoggedInUserId={setLoggedInUserId} 
+                                isDarkMode={isDarkMode}
+                                onLogout={handleLogout} // 로그아웃 함수 전달
+                            />}
+                        />
+                        <Route path="/login" element={<Login 
+                                isLoggedIn={isLoggedIn} 
+                                setIsLoggedIn={setIsLoggedIn} 
+                                setLoggedInUserId={setLoggedInUserId}
+                                isLoading={isLoading}
+                                setIsLoading={setIsLoading}
+                            />} />
+                        <Route path="/register" element={<Register isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+                        <Route path="/registration-success" element={<RegistrationSuccess isLoading={isLoading} setIsLoading={setIsLoading}/>} />
+                        <Route 
+                            path="/fileList" 
+                            element={<FileList isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
+                        />
+                        <Route 
+                            path="/favorites" 
+                            element={<FavoriteFiles isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
+                        />
+                        <Route 
+                            path="/post"
+                            element={<Post isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>}
+                        />
+                        <Route path="/post/:id" element={<PostDetail />} />
+                    </Route>
+                </Routes>
+            </Router>
+        </UserProvider>
     );
 }
 

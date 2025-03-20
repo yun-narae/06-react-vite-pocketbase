@@ -2,9 +2,10 @@ import React, { useState, useRef } from "react";
 import pb from "../lib/pocketbase";
 import PostImageModal from "./PostImageModal";
 import useImageViewer from "../hooks/useImageViewer"; // 🔥 커스텀 훅 추가
+import { useUser } from "../context/UserContext"; // ✅ Context에서 `user` 가져오기
 
 const PostModal = ({ post, setShowForm, fetchPosts }) => {
-    const user = pb.authStore.model;
+    const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
     const fileInputRef = useRef(null);
     const [title, setTitle] = useState(post ? post.title : "");
     const [text, setText] = useState(post ? post.text : "");
