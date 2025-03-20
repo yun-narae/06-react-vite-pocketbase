@@ -10,6 +10,7 @@ import Home from "./pages/Home"; // Home 컴포넌트 추가
 import FileList from "./pages/FileList";
 import FavoriteFiles from "./pages/FavoriteFiles";
 import Post from "./pages/Post";
+import PostDetail from "./pages/PostDetail";
 
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
@@ -114,6 +115,7 @@ function App() {
                         path="/post"
                         element={<Post isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>}
                     />
+                    <Route path="/post/:id" element={<PostDetail />} />
                 </Route>
             </Routes>
         </Router>
