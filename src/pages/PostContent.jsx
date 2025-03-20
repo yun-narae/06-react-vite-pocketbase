@@ -4,18 +4,23 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 
-const PostContent = ({ user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
+const PostContent = ({ onClick, user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
+
     return (
         <div>
-            <h2 className="text-xl font-bold">{post.title}</h2>
-            <p className="text-gray-700">{post.text}</p>
-            <p className="text-sm text-gray-500">
-                {new Date(post.updated).toISOString().split("T")[0]}
-            </p>
+            <div className="mb-2">
+                <p className="font-bold text-gray-700 mb-2">{post.editor}님</p>
+                <h2 className="text-xl font-bold">{post.title}</h2>
+                <p className="text-gray-700 mb-2">{post.text}</p>
+                <p className="text-sm text-gray-500">
+                    {new Date(post.updated).toISOString().split("T")[0]}
+                </p>
+            </div>
             
             {/* 이미지 슬라이더 */}
             {post.field && Array.isArray(post.field) ? (
-                <div>
+                <div onClick={onClick}  // ✅ 부모 이벤트 방지 적용
+                > 
                     {isMobile ? (
                         <Swiper navigation modules={[Navigation]} className="">
                             {post.field.map((img, index) => (
@@ -46,26 +51,20 @@ const PostContent = ({ user, post, handleImageClick, isMobile, handleDelete, han
             ) : null}
 
             {post && user && post.editor === user.name && (
-                <>
+                <div onClick={onClick}  // ✅ 부모 이벤트 방지 적용
+                >
                     <button 
-                        onClick={(e) => {
-                            e.stopPropagation(); // 부모의 onClick 실행 방지
-                            handleEdit(post);
-                        }}
+                        onClick={() => handleEdit(post)} 
                         className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded">
                         수정
                     </button>
                     <button 
-                        onClick={(e) => {
-                            e.stopPropagation(); // 부모의 onClick 실행 방지
-                            handleDelete(post);
-                        }}
+                        onClick={() => handleDelete(post)} 
                         className="ml-2 px-2 py-1 bg-red-500 text-white rounded">
                         삭제
                     </button>
-                </>
+                </div>
             )}
-
         </div>
     );
 };
