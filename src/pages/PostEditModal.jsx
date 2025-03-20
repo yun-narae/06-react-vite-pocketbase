@@ -3,7 +3,7 @@ import pb from "../lib/pocketbase";
 import useImageViewer from "../hooks/useImageViewer"; // 🔥 커스텀 훅 추가
 import PostImageModal from "./PostImageModal";
 
-const PostEditModal = ({ editPost, setEditPost, setEditModal, fetchPosts }) => {
+const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPosts }) => {
     const fileInputRef = useRef(null);
     const [title, setTitle] = useState(editPost.title);
     const [text, setText] = useState(editPost.text);
@@ -81,7 +81,10 @@ const PostEditModal = ({ editPost, setEditPost, setEditModal, fetchPosts }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-10 flex justify-center items-center z-10">
+        <div 
+            onClick={onClick}
+            className="fixed inset-0 bg-gray-800 bg-opacity-10 flex justify-center items-center z-10"
+        >
             <div className="bg-white p-4 rounded shadow-lg w-96">
                 <h2 className="text-lg font-bold">게시물 수정</h2>
                 <form onSubmit={handleUpdate} className="mt-4">
