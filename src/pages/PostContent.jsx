@@ -49,22 +49,30 @@ const PostContent = ({ onClick, user, post, handleImageClick, isMobile, handleDe
                     )}
                 </div>
             ) : null}
-
-            {post && user && post.editor === user.name && (
-                <div onClick={onClick}  // ✅ 부모 이벤트 방지 적용
+            
+            <div className="flex justify-between items-center">
+                <div
+                    onClick={onClick}  // ✅ 부모 이벤트 방지 적용
                 >
-                    <button 
-                        onClick={() => handleEdit(post)} 
-                        className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded">
-                        수정
-                    </button>
-                    <button 
-                        onClick={() => handleDelete(post)} 
-                        className="ml-2 px-2 py-1 bg-red-500 text-white rounded">
-                        삭제
-                    </button>
+                    <p className="font-bold text-xs text-gray-500 mt-2">댓글 ()개</p>
                 </div>
-            )}
+                {post && user && post.editor === user.name && (
+                    <div
+                        onClick={onClick}  // ✅ 부모 이벤트 방지 적용
+                    >
+                        <button
+                            onClick={() => handleEdit(post)}
+                            className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded">
+                            수정
+                        </button>
+                        <button
+                            onClick={() => handleDelete(post)}
+                            className="ml-2 px-2 py-1 bg-red-500 text-white rounded">
+                            삭제
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
