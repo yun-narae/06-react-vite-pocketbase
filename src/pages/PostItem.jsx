@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import pb from "../lib/pocketbase";
 import { Navigation } from 'swiper/modules';
 import PostEditModal from "./PostEditModal";
@@ -20,12 +20,30 @@ const PostItem = ({
 }) => {
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer(); // 🔥 커스텀 훅 사용
     const navigate = useNavigate();
+    const [commentCount, setCommentCount] = useState(0); // ✅ 댓글 개수 상태
     
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 500);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
+
+    // ✅ 댓글 개수 가져오기
+    useEffect(() => {
+        const fetchCommentCount = async () => {
+            try {
+                const res = await pb.collection("comments").getList(1, 1, {
+                    filter: `post = "${post.id}"`,
+                    skipTotal: false,
+                });
+                setCommentCount(res.totalItems);
+            } catch (err) {
+                console.error("댓글 개수 불러오기 실패:", err);
+            }
+        };
+
+        if (post?.id) fetchCommentCount();
+    }, [post.id]);
 
     // 🔹 게시물 삭제 함수 (유저와 작성자가 일치하는 경우에만 가능)
     const handleDelete = async (post) => {
@@ -62,6 +80,7 @@ const PostItem = ({
                 handleDelete={handleDelete} 
                 handleEdit={handleEdit}
                 handleImageClick={handleImageClick}
+                commentCount={commentCount}
             />
 
             {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
