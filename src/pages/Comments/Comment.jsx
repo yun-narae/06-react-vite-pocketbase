@@ -70,11 +70,21 @@ const Comment = ({ comment, user, post, setComments, onCommentCountChange }) => 
                         type="text"
                         value={edited}
                         onChange={(e) => setEdited(e.target.value)}
-                        className="w-full bg-gray-100 border border-gray-200 rounded pl-4"
+                        className="w-full bg-gray-100 border border-gray-200 rounded pl-2"
                     />
                     <div className="flex gap-2">
-                        <button onClick={handleUpdate} className="p-2 border border-gray-300 text-gray-800 rounded hover:border-gray-500 hover:bg-gray-100">저장</button>
-                        <button onClick={() => setIsEditing(false)} className="p-2 text-gray-500 hover:text-gray-900 rounded">취소</button>
+                        <button 
+                            onClick={handleUpdate} 
+                            className="p-2 border border-gray-300 text-gray-800 rounded hover:border-gray-500 hover:bg-gray-100 break-keep"
+                            >
+                                저장
+                        </button>
+                        <button 
+                            onClick={() => setIsEditing(false)} 
+                            className="p-2 text-gray-500 hover:text-gray-900 rounded break-keep"
+                            >
+                                취소
+                        </button>
                     </div>
                 </div>
             ) : (
@@ -82,9 +92,17 @@ const Comment = ({ comment, user, post, setComments, onCommentCountChange }) => 
                     <p className="text-sm text-gray-800 mb-2">{comment.content}</p>
                     {isOwner && (
                         <div className="flex float-right text-gray-600 text-sm">
-                            <button onClick={() => setIsEditing(true)} className="p-1 hover:text-black">수정</button>
+                            <button 
+                                onClick={() => setIsEditing(true)} 
+                                className="p-1 hover:text-black break-keep">
+                                    수정
+                            </button>
                             <p className="p-1">/</p>
-                            <button onClick={handleDelete} className="p-1 hover:text-black">삭제</button>
+                            <button 
+                                onClick={handleDelete} 
+                                className="p-1 hover:text-black break-keep">
+                                삭제
+                            </button>
                         </div>
                     )}
                 </div>

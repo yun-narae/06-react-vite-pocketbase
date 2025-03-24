@@ -34,7 +34,7 @@ const PostContent = ({ commentCount, onClick, user, post, handleImageClick, isMo
                             ))}
                         </Swiper>
                     ) : (
-                        <div className="flex space-x-2 bg-blue-400">
+                        <div className="flex space-x-2">
                             {post.field.map((img, index) => (
                                 <img
                                     key={index}
