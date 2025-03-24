@@ -6,6 +6,7 @@ import useImageViewer from "../hooks/useImageViewer";
 import PostContent from "./PostContent"; // ✅ 공통 컴포넌트 사용
 import PostEditModal from "./PostEditModal";
 import { useUser } from "../context/UserContext"; // ✅ Context에서 `user` 가져오기
+import WrapComments from "./Comments/WrapComments";
 
 const PostDetail = () => {
     const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
@@ -17,6 +18,7 @@ const PostDetail = () => {
     const [post, setPost] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer();
+    const [commentCount, setCommentCount] = useState(0); // ✅ 댓글 수 상태 추가
 
     useEffect(() => {
         fetchPost();
@@ -83,17 +85,29 @@ const PostDetail = () => {
             {post && (
                 <PostContent 
                     post={post} 
-                    user={user} // ✅ Context에서 가져온 `user` 전달
-                    isMobile={isMobile} 
-                    handleDelete={handleDelete}
+                    user={user} 
+                    isMobile={isMobile}
+                    handleDelete={handleDelete} 
                     handleEdit={handleEdit}
                     handleImageClick={handleImageClick}
+                    commentCount={commentCount}
+                    onCommentCountChange={setCommentCount}
                 />
             )}
 
+            <WrapComments 
+                post={post}
+                user={user}
+                commentCount={commentCount}
+                onCommentCountChange={setCommentCount}
+            />
+
             {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
             {selectedImage && (
-                <PostImageModal selectedImage={selectedImage} setSelectedImage={setSelectedImage} />
+                <PostImageModal 
+                    selectedImage={selectedImage} 
+                    setSelectedImage={setSelectedImage} 
+                />
             )}
 
             {editModal && editPost && (
