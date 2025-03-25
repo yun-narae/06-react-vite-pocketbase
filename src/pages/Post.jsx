@@ -3,8 +3,10 @@ import pb from "../lib/pocketbase";
 import PostList from "./PostList";
 import PostModal from "./PostModal";
 import { useUser } from "../context/UserContext"; // ✅ Context에서 `user` 가져오기
+import { useNavigate } from "react-router-dom";
 
 const Post = () => {
+    const navigate = useNavigate();
     const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
     const [postData, setPostData] = useState([]);
     const [editPost, setEditPost] = useState(null);
@@ -45,10 +47,16 @@ const Post = () => {
             <div className="flex justify-between w-full max-w-2xl">
                 <h1 className="text-2xl pb-4">게시판</h1>
                 <div className="flex justify-between gap-1">
-                    <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded">
+                    <button 
+                        onClick={() => setShowForm(true)} 
+                        className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded"
+                    >
                         팝업으로 작성하기
                     </button>
-                    <button className="px-4 py-2 bg-orange-500 hover:bg-orange-700 text-white rounded">
+                    <button 
+                        onClick={() => navigate("/post/create")} 
+                        className="px-4 py-2 bg-orange-500 hover:bg-orange-700 text-white rounded"
+                    >
                         Step으로 작성하기
                     </button>
                 </div>
