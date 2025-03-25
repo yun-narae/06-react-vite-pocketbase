@@ -12,6 +12,7 @@ import FavoriteFiles from "./pages/FavoriteFiles";
 import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
 import { UserProvider } from "./context/UserContext"; // ✅ UserContext 추가
+import StepPostPage from "./pages/StepPostPage";
 
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
@@ -118,6 +119,7 @@ function App() {
                             element={<Post isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>}
                         />
                         <Route path="/post/:id" element={<PostDetail />} />
+                        <Route path="/post/create" element={<StepPostPage />} />
                     </Route>
                 </Routes>
             </Router>
