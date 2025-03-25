@@ -15,7 +15,7 @@ const StepPostPage = ({ post }) => {
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer();
     const [formData, setFormData] = useState({
         title: "",
-        category: "",
+        category: [],
         description: "",
         location: "",
         date: "",
@@ -28,9 +28,19 @@ const StepPostPage = ({ post }) => {
     const fileInputRef = useRef(null);
     const [postImgs, setPostImgs] = useState([]);
     const [previewImgs, setPreviewImgs] = useState([]);
+    const [errors, setErrors] = useState({});
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+        setErrors((prev) => ({ ...prev, [field]: "" }));
+    };
+
+    const toggleCategory = (value) => {
+        setFormData((prev) => {
+            const current = new Set(prev.category);
+            current.has(value) ? current.delete(value) : current.add(value);
+            return { ...prev, category: Array.from(current) };
+        });
     };
 
     const uploadFiles = (e) => {
@@ -49,7 +59,61 @@ const StepPostPage = ({ post }) => {
         setPostImgs(prev => prev.filter((_, i) => i !== index));
     };
 
-    const nextStep = () => setStep((s) => Math.min(s + 1, steps.length - 1));
+    const validateStep = () => {
+        const isEmpty = (str) => !str || str.trim() === "";
+        const current = steps[step];
+        const errs = {};
+
+        if (current === "title") {
+            if (isEmpty(formData.title) || formData.title.trim().length > 15) {
+                errs.title = "제목은 공백만 입력되거나 15자를 넘을 수 없습니다.";
+            }
+        }
+
+        if (current === "category") {
+            if (!formData.category.length) {
+                errs.category = "한 가지 이상 선택해주세요.";
+            }
+        }
+
+        if (current === "description") {
+            if (isEmpty(formData.description)) {
+                errs.description = "모임 소개를 입력해주세요.";
+            }
+        }
+
+        if (current === "location") {
+            if (isEmpty(formData.location)) {
+                errs.location = "모임 위치를 입력해주세요.";
+            }
+        }
+
+        if (current === "date") {
+            if (isEmpty(formData.date) || isEmpty(formData.timeStart) || isEmpty(formData.timeEnd)) {
+                errs.date = "날짜와 시간을 모두 입력해주세요.";
+            }
+        }
+
+        if (current === "capacity") {
+            if (!/^\d+$/.test(formData.capacity)) {
+                errs.capacity = "숫자만 입력 가능합니다.";
+            }
+        }
+
+        if (current === "fee") {
+            if (!/^\d+$/.test(formData.fee)) {
+                errs.fee = "숫자만 입력 가능합니다.";
+            }
+        }
+
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+    };
+
+    const nextStep = () => {
+        if (validateStep()) setStep((s) => Math.min(s + 1, steps.length - 1));
+    };
+
     const prevStep = () => setStep((s) => Math.max(s - 1, 0));
 
     return (
@@ -66,126 +130,146 @@ const StepPostPage = ({ post }) => {
                 >
                 <div className="w-full">
                     {step === 0 && (
-                    <input
+                    <div>
+                        <input
                         value={formData.title}
                         onChange={(e) => handleChange("title", e.target.value)}
                         placeholder="모임 제목"
                         className="w-full p-2 border rounded"
-                    />
+                        />
+                        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                    </div>
                     )}
                     {step === 1 && (
-                    <select
-                        value={formData.category}
-                        onChange={(e) => handleChange("category", e.target.value)}
-                        className="w-full p-2 border rounded"
-                    >
-                        <option value="">요리 종류 선택</option>
-                        <option value="양식">양식</option>
-                        <option value="중식">중식</option>
-                        <option value="일식">일식</option>
-                        <option value="베이커리">베이커리</option>
-                        <option value="기타">기타</option>
-                    </select>
+                    <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                        {["양식", "중식", "일식", "베이커리", "기타"].map((cat) => (
+                            <button
+                            key={cat}
+                            onClick={() => toggleCategory(cat)}
+                            className={`px-3 py-1 rounded-full border ${
+                                formData.category.includes(cat)
+                                ? "bg-blue-500 text-white border-blue-500"
+                                : "bg-white text-gray-800 border-gray-300 hover:bg-blue-500 hover:text-white hover:border-blue-500"
+                            }`}
+                            >
+                            {cat}
+                            </button>
+                        ))}
+                        </div>
+                        {errors.category && <p className="text-red-500 text-sm">{errors.category}</p>}
+                    </div>
                     )}
                     {step === 2 && (
-                    <textarea
-                        value={formData.description}
-                        onChange={(e) => handleChange("description", e.target.value)}
-                        placeholder="모임 소개"
-                        className="w-full p-2 border rounded"
-                    />
+                    <div>
+                        <textarea
+                            value={formData.description}
+                            onChange={(e) => handleChange("description", e.target.value)}
+                            placeholder="모임 소개"
+                            className="w-full p-2 border rounded"
+                        />
+                        {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
+                    </div>
                     )}
                     {step === 3 && (
-                    <input
-                        value={formData.location}
-                        onChange={(e) => handleChange("location", e.target.value)}
-                        placeholder="모임 위치"
-                        className="w-full p-2 border rounded"
-                    />
+                    <div>
+                        <input
+                            value={formData.location}
+                            onChange={(e) => handleChange("location", e.target.value)}
+                            placeholder="모임 위치"
+                            className="w-full p-2 border rounded"
+                        />
+                        {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
+                    </div>
                     )}
                     {step === 4 && (
                     <div className="space-y-2">
                         <input
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => handleChange("date", e.target.value)}
-                        className="w-full p-2 border rounded"
+                            type="date"
+                            value={formData.date}
+                            onChange={(e) => handleChange("date", e.target.value)}
+                            className="w-full p-2 border rounded"
                         />
                         <div className="flex gap-2">
-                        <input
-                            type="time"
-                            value={formData.timeStart}
-                            onChange={(e) => handleChange("timeStart", e.target.value)}
-                            className="w-full p-2 border rounded"
-                        />
-                        <input
-                            type="time"
-                            value={formData.timeEnd}
-                            onChange={(e) => handleChange("timeEnd", e.target.value)}
-                            className="w-full p-2 border rounded"
-                        />
+                            <input
+                                type="time"
+                                value={formData.timeStart}
+                                onChange={(e) => handleChange("timeStart", e.target.value)}
+                                className="w-full p-2 border rounded"
+                            />
+                            <input
+                                type="time"
+                                value={formData.timeEnd}
+                                onChange={(e) => handleChange("timeEnd", e.target.value)}
+                                className="w-full p-2 border rounded"
+                            />
                         </div>
                     </div>
                     )}
                     {step === 5 && (
-                    <input
+                    <div>
+                        <input
                         type="number"
                         value={formData.capacity}
                         onChange={(e) => handleChange("capacity", e.target.value)}
                         placeholder="모임 인원"
                         className="w-full p-2 border rounded"
-                    />
+                        />
+                        {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
+                    </div>
                     )}
                     {step === 6 && (
-                    <input
+                    <div>
+                        <input
                         type="text"
                         value={formData.fee}
                         onChange={(e) => handleChange("fee", e.target.value)}
                         placeholder="참가비 (예: 30000원)"
                         className="w-full p-2 border rounded"
-                    />
+                        />
+                        {errors.fee && <p className="text-red-500 text-sm mt-1">{errors.fee}</p>}
+                    </div>
                     )}
                     {step === 7 && (
                     <div>
                         <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={uploadFiles}
-                            className="opacity-0 absolute w-0 h-0" // ✅ 파일 입력 필드 숨김 (하지만 클릭 가능)
-                            multiple 
-                            accept="image/*" 
-                            id="fileUpload"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={uploadFiles}
+                        className="opacity-0 absolute w-0 h-0"
+                        multiple
+                        accept="image/*"
+                        id="fileUpload"
                         />
-                        <label 
-                            htmlFor="fileUpload" 
-                            className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 inline-block"
+                        <label
+                        htmlFor="fileUpload"
+                        className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 inline-block"
                         >
-                            파일 선택
+                        파일 선택
                         </label>
                         <div className="flex gap-2 mt-2">
                         {previewImgs.map((img, index) => (
                             <div key={index} className="relative">
-                                <img 
-                                    src={img} 
-                                    alt="미리보기" 
-                                    onClick={() => handleImageClick(img, post, true)} // ✅ 기존 이미지 클릭 시 PostImageModal 실행
-                                    className="w-20 h-20 object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
-                                />
-                                <button
-                                    onClick={() => removePreviewImage(index)} 
-                                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1"
-                                >x</button>
+                            <img
+                                src={img}
+                                alt="미리보기"
+                                onClick={() => handleImageClick(img, post, true)}
+                                className="w-20 h-20 object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
+                            />
+                            <button
+                                onClick={() => removePreviewImage(index)}
+                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-1"
+                            >x</button>
                             </div>
                         ))}
                         </div>
                     </div>
                     )}
-
                     {step === 8 && (
                     <div className="space-y-2">
                         <h3 className="text-xl font-bold">미리보기</h3>
                         <p><strong>제목:</strong> {formData.title}</p>
-                        <p><strong>요리 종류:</strong> {formData.category}</p>
+                        <p><strong>요리 종류:</strong> {formData.category.join(", ")}</p>
                         <p><strong>소개:</strong> {formData.description}</p>
                         <p><strong>위치:</strong> {formData.location}</p>
                         <p><strong>일정:</strong> {formData.date} / {formData.timeStart} - {formData.timeEnd}</p>
@@ -193,12 +277,12 @@ const StepPostPage = ({ post }) => {
                         <p><strong>참가비:</strong> {formData.fee}</p>
                         <div className="flex gap-2 mt-2">
                         {previewImgs.map((img, index) => (
-                            <img 
-                                key={index}
-                                src={img} 
-                                alt="미리보기" 
-                                onClick={() => handleImageClick(img, post, true)} // ✅ 기존 이미지 클릭 시 PostImageModal 실행
-                                className="w-20 h-20 object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
+                            <img
+                            key={index}
+                            src={img}
+                            alt="미리보기"
+                            onClick={() => handleImageClick(img, post, true)}
+                            className="w-20 h-20 object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
                             />
                         ))}
                         </div>
@@ -219,11 +303,10 @@ const StepPostPage = ({ post }) => {
                 )}
             </div>
 
-            {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
             {selectedImage && (
-                <PostImageModal 
-                    selectedImage={selectedImage} 
-                    setSelectedImage={setSelectedImage} 
+                <PostImageModal
+                selectedImage={selectedImage}
+                setSelectedImage={setSelectedImage}
                 />
             )}
         </div>
