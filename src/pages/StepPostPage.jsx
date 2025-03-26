@@ -1,19 +1,39 @@
 // StepPostPage.jsx
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostImageModal from "./PostImageModal";
 import useImageViewer from "../hooks/useImageViewer";
 
 const steps = [
-  "title", "category", "description", "location", "date", "capacity", "fee", "images", "preview"
+    "title", "category", "description", "location", "date", "capacity", "fee", "images", "preview"
 ];
+
+const STORAGE_KEY = "stepPostData";
 
 const StepPostPage = ({ post }) => {
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer();
-    const [formData, setFormData] = useState({
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const [hasChoice, setHasChoice] = useState(!!saved);
+    const parsed = saved ? JSON.parse(saved) : null;
+    const [formData, setFormData] = useState(() => {
+    if (parsed?.formData) {
+        return {
+            title: parsed.formData.title || "",
+            category: Array.isArray(parsed.formData.category) ? parsed.formData.category : [],
+            description: parsed.formData.description || "",
+            location: parsed.formData.location || "",
+            date: parsed.formData.date || "",
+            timeStart: parsed.formData.timeStart || "",
+            timeEnd: parsed.formData.timeEnd || "",
+            capacity: parsed.formData.capacity || "",
+            fee: parsed.formData.fee || "",
+            images: Array.isArray(parsed.formData.images) ? parsed.formData.images : []
+        };
+    }
+    return {
         title: "",
         category: [],
         description: "",
@@ -24,11 +44,18 @@ const StepPostPage = ({ post }) => {
         capacity: "",
         fee: "",
         images: []
-    });
+    };
+});
+    const [postImgs, setPostImgs] = useState(() => parsed?.formData?.images?.map(name => ({ name })) || []);
+    const [previewImgs, setPreviewImgs] = useState(() => parsed?.previewImgs || []);
     const fileInputRef = useRef(null);
-    const [postImgs, setPostImgs] = useState([]);
-    const [previewImgs, setPreviewImgs] = useState([]);
     const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        const serializedImages = postImgs.map(file => file.name);
+        const formDataToSave = { ...formData, images: serializedImages };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ formData: formDataToSave, previewImgs }));
+    }, [formData, previewImgs, postImgs]);
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -95,14 +122,24 @@ const StepPostPage = ({ post }) => {
         }
 
         if (current === "capacity") {
-            if (!/^\d+$/.test(formData.capacity)) {
+            if (isEmpty(formData.capacity)) {
+                errs.capacity = "모임 인원을 입력해주세요.";
+            } else if (!/^\d+$/.test(formData.capacity.trim())) {
                 errs.capacity = "숫자만 입력 가능합니다.";
             }
         }
 
         if (current === "fee") {
-            if (!/^\d+$/.test(formData.fee)) {
+            if (isEmpty(formData.fee)) {
+                errs.fee = "참가비를 입력해주세요.";
+            } else if (!/^\d+$/.test(formData.fee.trim())) {
                 errs.fee = "숫자만 입력 가능합니다.";
+            }
+        }
+
+        if (current === "images") {
+            if (previewImgs.length === 0 && formData.images.length === 0) {
+                errs.images = "이미지를 최소 1개 이상 업로드해주세요.";
             }
         }
 
@@ -115,6 +152,40 @@ const StepPostPage = ({ post }) => {
     };
 
     const prevStep = () => setStep((s) => Math.max(s - 1, 0));
+
+    if (hasChoice) {
+        return (
+          <div className="max-w-xl mx-auto p-6 space-y-4">
+            <h2 className="text-xl font-bold">임시 저장된 글이 있습니다.</h2>
+            <p>이어서 작성할까요, 새로 시작할까요?</p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setHasChoice(false)}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded"
+              >이어서 작성</button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("stepPostData");
+                  setFormData({
+                    title: "",
+                    category: "",
+                    description: "",
+                    location: "",
+                    date: "",
+                    timeStart: "",
+                    timeEnd: "",
+                    capacity: "",
+                    fee: "",
+                    images: []
+                  });
+                  setHasChoice(false);
+                }}
+                className="px-4 py-2 text-black hover:text-gray-700"
+              >새로 작성</button>
+            </div>
+          </div>
+        );
+      }
 
     return (
         <div className="max-w-xl mx-auto p-6">
@@ -204,6 +275,8 @@ const StepPostPage = ({ post }) => {
                                 className="w-full p-2 border rounded"
                             />
                         </div>
+                        {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
+
                     </div>
                     )}
                     {step === 5 && (
@@ -263,6 +336,7 @@ const StepPostPage = ({ post }) => {
                             </div>
                         ))}
                         </div>
+                        {errors.images && <p className="text-red-500 text-sm mt-1">{errors.images}</p>}
                     </div>
                     )}
                     {step === 8 && (
