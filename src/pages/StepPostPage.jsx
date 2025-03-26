@@ -165,7 +165,7 @@ const StepPostPage = ({ post }) => {
               >이어서 작성</button>
               <button
                 onClick={() => {
-                  localStorage.removeItem("stepPostData");
+                  localStorage.removeItem(STORAGE_KEY);
                   setFormData({
                     title: "",
                     category: "",
