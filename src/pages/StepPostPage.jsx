@@ -4,14 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostImageModal from "./PostImageModal";
 import useImageViewer from "../hooks/useImageViewer";
+import { useUser } from "../context/UserContext"; // 상단에 추가
 
 const steps = [
     "title", "category", "description", "location", "date", "capacity", "fee", "images", "preview"
 ];
 
-const STORAGE_KEY = "stepPostData";
 
 const StepPostPage = ({ post }) => {
+    const user = useUser();
+    const STORAGE_KEY = `stepPostData_${user.id}`;
     const navigate = useNavigate();
     const [step, setStep] = useState(0);
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer();
@@ -50,6 +52,7 @@ const StepPostPage = ({ post }) => {
     const [previewImgs, setPreviewImgs] = useState(() => parsed?.previewImgs || []);
     const fileInputRef = useRef(null);
     const [errors, setErrors] = useState({});
+    
 
     useEffect(() => {
         const serializedImages = postImgs.map(file => file.name);
