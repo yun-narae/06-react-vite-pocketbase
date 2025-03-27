@@ -10,7 +10,6 @@ const steps = [
     "title", "category", "description", "location", "date", "capacity", "fee", "images", "preview"
 ];
 
-
 const StepPostPage = ({ post }) => {
     const user = useUser();
     const STORAGE_KEY = `stepPostData_${user.id}`;
@@ -192,7 +191,10 @@ const StepPostPage = ({ post }) => {
 
     return (
         <div className="max-w-xl mx-auto p-6">
-            <h2 className="text-lg font-bold mb-4">게시물 작성</h2>
+            <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-bold ">게시물 작성</h2>
+                <button className="text-sm text-gray-500 hover:text-gray-800">임시저장</button>
+            </div>
 
             <AnimatePresence mode="wait">
                 <motion.div
