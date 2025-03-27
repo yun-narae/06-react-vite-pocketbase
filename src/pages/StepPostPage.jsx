@@ -1,4 +1,3 @@
-// StepPostPage.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,30 +33,62 @@ const StepPostPage = ({ post }) => {
             images: Array.isArray(parsed.formData.images) ? parsed.formData.images : []
         };
     }
-    return {
-        title: "",
-        category: [],
-        description: "",
-        location: "",
-        date: "",
-        timeStart: "",
-        timeEnd: "",
-        capacity: "",
-        fee: "",
-        images: []
-    };
-});
+        return {
+            title: "",
+            category: [],
+            description: "",
+            location: "",
+            date: "",
+            timeStart: "",
+            timeEnd: "",
+            capacity: "",
+            fee: "",
+            images: []
+        };
+    });
     const [postImgs, setPostImgs] = useState(() => parsed?.formData?.images?.map(name => ({ name })) || []);
     const [previewImgs, setPreviewImgs] = useState(() => parsed?.previewImgs || []);
     const fileInputRef = useRef(null);
     const [errors, setErrors] = useState({});
-    
+    const [isManualSave, setIsManualSave] = useState(false); // 임시저장 버튼
 
-    useEffect(() => {
+    const handleManualSave = () => {
         const serializedImages = postImgs.map(file => file.name);
         const formDataToSave = { ...formData, images: serializedImages };
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ formData: formDataToSave, previewImgs }));
-    }, [formData, previewImgs, postImgs]);
+        setIsManualSave(true);
+        alert("임시 저장되었습니다.");
+    };
+
+    // 페이지 이탈 감지 및 저장 여부 확인
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            if (!isManualSave && formData.title.trim() !== "") {
+                e.preventDefault();
+                e.returnValue = "";
+            }
+        };
+
+        const handleRouteChange = (e) => {
+            if (!isManualSave && formData.title.trim() !== "") {
+                const confirmLeave = window.confirm("임시 저장 하시겠습니까?");
+                if (confirmLeave) handleManualSave();
+                else localStorage.removeItem(STORAGE_KEY);
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        window.addEventListener("popstate", handleRouteChange);
+        window.addEventListener("hashchange", handleRouteChange);
+        window.addEventListener("locationchange", handleRouteChange);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            window.removeEventListener("popstate", handleRouteChange);
+            window.removeEventListener("hashchange", handleRouteChange);
+            window.removeEventListener("locationchange", handleRouteChange);
+        };
+    }, [isManualSave, step, formData.title]);
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
@@ -193,7 +224,7 @@ const StepPostPage = ({ post }) => {
         <div className="max-w-xl mx-auto p-6">
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-bold ">게시물 작성</h2>
-                <button className="text-sm text-gray-500 hover:text-gray-800">임시저장</button>
+                <button onClick={handleManualSave} className="text-sm text-gray-500 hover:text-gray-800">임시저장</button>
             </div>
 
             <AnimatePresence mode="wait">
