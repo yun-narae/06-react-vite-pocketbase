@@ -6,7 +6,7 @@ import PostImageModal from "./PostImageModal";
 const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPosts }) => {
     const fileInputRef = useRef(null);
     const [title, setTitle] = useState(editPost.title);
-    const [text, setText] = useState(editPost.text);
+    const [description, setDescription] = useState(editPost.description);
     const [postImgs, setPostImgs] = useState([]);
     const [previewImgs, setPreviewImgs] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -15,13 +15,13 @@ const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPost
     // 🔹 파일 업로드 핸들러
     const uploadFiles = (e) => {
         const files = Array.from(e.target.files);
-        if ((editPost?.field?.length || 0) + postImgs.length + files.length > 3) {
+        if ((editPost?.images?.length || 0) + postImgs.length + files.length > 3) {
             alert("업로드 이미지 개수를 초과하였습니다. (최대 3개)");
             return;
         }
         const newPreviewImgs = files.map(file => URL.createObjectURL(file));
-        setPostImgs(prev => [...prev, ...files].slice(0, 3 - (editPost?.field?.length || 0)));
-        setPreviewImgs(prev => [...prev, ...newPreviewImgs].slice(0, 3 - (editPost?.field?.length || 0)));
+        setPostImgs(prev => [...prev, ...files].slice(0, 3 - (editPost?.images?.length || 0)));
+        setPreviewImgs(prev => [...prev, ...newPreviewImgs].slice(0, 3 - (editPost?.images?.length || 0)));
 
         // ✅ 파일 선택 후 `input` 값 초기화
         if (fileInputRef.current) {
@@ -44,12 +44,12 @@ const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPost
 
     // 🔹 기존 이미지 삭제 핸들러
     const removeExistingImage = (index) => {
-        if (editPost.field.length <= 1) {
+        if (editPost.images.length <= 1) {
             alert("최소 1개의 이미지는 있어야 합니다.");
             return;
         }
-        const updatedImages = editPost.field.filter((_, i) => i !== index);
-        setEditPost({ ...editPost, field: updatedImages });
+        const updatedImages = editPost.images.filter((_, i) => i !== index);
+        setEditPost({ ...editPost, images: updatedImages });
     };
 
     // 🔹 게시물 수정 핸들러
@@ -59,18 +59,19 @@ const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPost
         try {
             const formData = new FormData();
             formData.append("title", title);
-            formData.append("text", text);
+            formData.append("description", description);
 
             // ✅ 기존 이미지 추가
-            if (editPost.field) {
-                editPost.field.forEach((img) => formData.append("field", img));
+            if (editPost.images) {
+                editPost.images.forEach((img) => formData.append("images", img));
             }
 
             // ✅ 새로운 이미지 추가
-            postImgs.forEach((img) => formData.append("field", img));
+            postImgs.forEach((img) => formData.append("images", img));
 
             await pb.collection("post").update(editPost.id, formData);
 
+            console.log("수정 완료되었습니다!");
             fetchPosts();
             setEditModal(false);
         } catch (error) {
@@ -96,8 +97,8 @@ const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPost
                         className="w-full p-2 border rounded"
                     />
                     <textarea 
-                        value={text} 
-                        onChange={(e) => setText(e.target.value)} 
+                        value={description} 
+                        onChange={(e) => setDescription(e.target.value)} 
                         placeholder="내용 입력" 
                         className="w-full p-2 border rounded mt-2"
                     />
@@ -121,7 +122,7 @@ const PostEditModal = ({ onClick, editPost, setEditPost, setEditModal, fetchPost
 
                     {/* ✅ 기존 이미지 미리보기 */}
                     <div className="mt-2 flex space-x-2">
-                        {editPost?.field?.map((img, index) => (
+                        {editPost?.images?.map((img, index) => (
                             <div key={index} className="relative">
                                 <img
                                     src={`${import.meta.env.VITE_PB_API}/files/${editPost.collectionId}/${editPost.id}/${img}`} 

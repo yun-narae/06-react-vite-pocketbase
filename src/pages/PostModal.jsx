@@ -8,7 +8,7 @@ const PostModal = ({ post, setShowForm, fetchPosts }) => {
     const user = useUser(); // ✅ 부모(`UserProvider`)에서 `user` 받아오기
     const fileInputRef = useRef(null);
     const [title, setTitle] = useState(post ? post.title : "");
-    const [text, setText] = useState(post ? post.text : "");
+    const [description, setDescription] = useState(post ? post.description : "");
     const [postImgs, setPostImgs] = useState([]);
     const [previewImgs, setPreviewImgs] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -17,7 +17,7 @@ const PostModal = ({ post, setShowForm, fetchPosts }) => {
 
     const uploadFiles = (e) => {
         const files = Array.from(e.target.files);
-        if ((post?.field?.length || 0) + postImgs.length + files.length > 3) {
+        if ((post?.images?.length || 0) + postImgs.length + files.length > 3) {
             alert("업로드 이미지 개수를 초과하였습니다. (최대 3개)");
             return;
         }
@@ -33,7 +33,7 @@ const PostModal = ({ post, setShowForm, fetchPosts }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!title || !text || postImgs.length === 0 || !user) {
+        if (!title || !description || postImgs.length === 0 || !user) {
             alert("제목, 내용, 이미지를 모두 입력해주세요.");
             return;
         }
@@ -41,12 +41,12 @@ const PostModal = ({ post, setShowForm, fetchPosts }) => {
         try {
             const formData = new FormData();
             formData.append("title", title);
-            formData.append("text", text);
+            formData.append("description", description);
             formData.append("editor", user.name);
             formData.append("user", user.id);
             formData.append("updated", new Date().toISOString().split("T")[0]);
 
-            postImgs.forEach((img) => formData.append("field", img));
+            postImgs.forEach((img) => formData.append("images", img));
 
             if (post) {
                 await pb.collection("post").update(post.id, formData);
@@ -76,8 +76,8 @@ const PostModal = ({ post, setShowForm, fetchPosts }) => {
                         className="w-full p-2 border rounded"
                     />
                     <textarea 
-                        value={text} 
-                        onChange={(e) => setText(e.target.value)} 
+                        value={description} 
+                        onChange={(e) => setDescription(e.target.value)} 
                         placeholder="내용 입력" 
                         className="w-full p-2 border rounded mt-2"
                     />
@@ -120,9 +120,9 @@ const PostModal = ({ post, setShowForm, fetchPosts }) => {
                     <button 
                         type="submit" 
                         className={`mt-4 px-4 py-2 rounded w-full ${
-                            title && text && postImgs.length > 0 ? "bg-green-500 text-white hover:bg-green-600" : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                            title && description && postImgs.length > 0 ? "bg-green-500 text-white hover:bg-green-600" : "bg-gray-400 text-gray-200 cursor-not-allowed"
                         }`} 
-                        disabled={!title || !text || postImgs.length === 0 || uploading}
+                        disabled={!title || !description || postImgs.length === 0 || uploading}
                     >
                         {uploading ? "업로드 중..." : "게시하기"}
                     </button>
