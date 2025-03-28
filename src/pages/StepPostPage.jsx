@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import PostImageModal from "./PostImageModal";
 import useImageViewer from "../hooks/useImageViewer";
-import { useUser } from "../context/UserContext"; // 상단에 추가
+import { useUser } from "../context/UserContext";
+import pb from "../lib/pocketbase";
 
 const steps = [
     "title", "category", "description", "location", "date", "capacity", "fee", "images", "preview"
@@ -51,6 +52,41 @@ const StepPostPage = ({ post }) => {
     const fileInputRef = useRef(null);
     const [errors, setErrors] = useState({});
     const [isManualSave, setIsManualSave] = useState(false); // 임시저장 버튼
+
+    // 포켓베이스
+    const handleSubmitPost = async () => {
+        try {
+            const form = new FormData();
+            form.append("title", formData.title);
+            form.append("description", formData.description);
+            form.append("location", formData.location);
+            form.append("date", formData.date);
+            form.append("timeStart", formData.timeStart);
+            form.append("timeEnd", formData.timeEnd);
+            form.append("capacity", formData.capacity);
+            form.append("fee", formData.fee);
+            form.append("user", user.id); // 현재 로그인 유저 ID
+            form.append("editor", user.name); // ✅ editor 추가
+    
+            // category 배열은 문자열로 변환 (예: "중식,일식")
+            form.append("category", formData.category.join(","));
+    
+            // 이미지 파일 업로드
+            postImgs.forEach((file) => {
+                if (file instanceof File) {
+                    form.append("images", file);
+                }
+            });
+    
+            await pb.collection("post").create(form);
+            localStorage.removeItem(STORAGE_KEY);
+            alert("게시물이 등록되었습니다!");
+            navigate("/post");
+        } catch (err) {
+            console.error("게시물 등록 실패", err);
+            alert("게시물 등록에 실패했습니다. 다시 시도해주세요.");
+        }
+    };
 
     const handleManualSave = () => {
         const serializedImages = postImgs.map(file => file.name);
@@ -424,7 +460,12 @@ const StepPostPage = ({ post }) => {
                 {step < steps.length - 1 ? (
                 <button onClick={nextStep} className="px-4 py-2 w-full bg-blue-500 hover:bg-blue-700 text-white rounded break-keep">다음 {step + 1}/{steps.length}</button>
                 ) : (
-                <button onClick={() => navigate("/post")} className="px-4 py-2 bg-orange-500 hover:bg-orange-700 text-white rounded break-keep">완료 후 이동</button>
+                <button 
+                    onClick={handleSubmitPost} 
+                    className="px-4 py-2 bg-orange-500 hover:bg-orange-700 text-white rounded break-keep"
+                >
+                    완료 후 이동
+                </button>
                 )}
             </div>
 
