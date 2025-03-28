@@ -60,17 +60,32 @@ const StepPostPage = ({ post }) => {
         alert("임시 저장되었습니다.");
     };
 
-    // 페이지 이탈 감지 및 저장 여부 확인
+    // 페이지 이탈 감지 및 저장 여부 확인 조건
     useEffect(() => {
+        const isFormTouched = () => {
+            return (
+                formData.title.trim() !== "" ||
+                formData.description.trim() !== "" ||
+                formData.category.length > 0 ||
+                formData.location.trim() !== "" ||
+                formData.date !== "" ||
+                formData.timeStart !== "" ||
+                formData.timeEnd !== "" ||
+                formData.capacity.trim() !== "" ||
+                formData.fee.trim() !== "" ||
+                previewImgs.length > 0
+            );
+        };
+    
         const handleBeforeUnload = (e) => {
-            if (!isManualSave && formData.title.trim() !== "") {
+            if (!isManualSave && isFormTouched()) {
                 e.preventDefault();
                 e.returnValue = "";
             }
         };
-
-        const handleRouteChange = (e) => {
-            if (!isManualSave && formData.title.trim() !== "") {
+    
+        const handleRouteChange = () => {
+            if (!isManualSave && isFormTouched()) {
                 const confirmLeave = window.confirm("임시 저장 하시겠습니까?");
                 if (confirmLeave) handleManualSave();
                 else localStorage.removeItem(STORAGE_KEY);
