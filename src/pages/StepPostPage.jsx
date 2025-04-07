@@ -5,6 +5,7 @@ import PostImageModal from "./PostImageModal";
 import useImageViewer from "../hooks/useImageViewer";
 import { useUser } from "../context/UserContext";
 import pb from "../lib/pocketbase";
+import imageCompression from "browser-image-compression";
 
 const steps = [
     "title", "category", "description", "location", "date", "capacity", "fee", "images", "preview"
@@ -154,15 +155,35 @@ const StepPostPage = ({ post }) => {
         });
     };
 
-    const uploadFiles = (e) => {
+    const uploadFiles = async (e) => {
         const files = Array.from(e.target.files);
+
         if ((post?.field?.length || 0) + postImgs.length + files.length > 3) {
             alert("업로드 이미지 개수를 초과하였습니다. (최대 3개)");
             return;
         }
-        const newPreviewImgs = files.map(file => URL.createObjectURL(file));
-        setPostImgs(prev => [...prev, ...files].slice(0, 3));
-        setPreviewImgs(prev => [...prev, ...newPreviewImgs].slice(0, 3));
+
+        try {
+            const compressedFiles = await Promise.all(
+                files.map(async (file) => {
+                    const options = {
+                        maxSizeMB: 1,
+                        maxWidthOrHeight: 1024,
+                        useWebWorker: true
+                    };
+                    const compressed = await imageCompression(file, options);
+                    return compressed;
+                })
+            );
+
+            const newPreviewImgs = compressedFiles.map(file => URL.createObjectURL(file));
+
+            setPostImgs(prev => [...prev, ...compressedFiles].slice(0, 3));
+            setPreviewImgs(prev => [...prev, ...newPreviewImgs].slice(0, 3));
+        } catch (error) {
+            console.error("이미지 압축 중 오류 발생:", error);
+            alert("이미지 압축에 실패했습니다.");
+        }
     };
 
     const removePreviewImage = (index) => {
