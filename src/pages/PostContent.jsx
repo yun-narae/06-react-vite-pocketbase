@@ -1,53 +1,63 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
+import { Link } from "react-router-dom";
 
 const PostContent = ({ commentCount, onClick, user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
+    const navigate = useNavigate();
 
     return (
         <div>
-            <div className="mb-2">
-                <p className="font-bold text-gray-700 mb-2">{post.editor}님</p>
-                <h2 className="text-xl font-bold">{post.title}</h2>
-                <p className="text-gray-700 mb-2">{post.description}</p>
-                <p className="text-sm text-gray-500">
-                    {new Date(post.updated).toISOString().split("T")[0]}
-                </p>
-            </div>
+            <Link to={`/mypage/${user.id}`} className="mb-2 pb-2 text-gray-500 flex font-bold border-b-2">
+                <b>
+                    {post.editor}님
+                </b>
+            </Link>
 
-            {/* 이미지 슬라이더 */}
-            {post.images && Array.isArray(post.images) ? (
-                <div onClick={onClick}>
-                    {isMobile ? (
-                        <Swiper navigation modules={[Navigation]}>
-                            {post.images.map((img, index) => (
-                                <SwiperSlide key={index}>
-                                    <img 
-                                        src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`} 
+            <div onClick={() => navigate(`/post/${post.id}`)}>
+                <div className="mb-2">
+                    {/* <p className="font-bold text-gray-700 mb-2">{post.editor}님</p> */}
+                    <h2 className="text-xl font-bold">{post.title}</h2>
+                    <p className="text-gray-700 mb-2">{post.description}</p>
+                    <p className="text-sm text-gray-500">
+                        {new Date(post.updated).toISOString().split("T")[0]}
+                    </p>
+                </div>
+                {/* 이미지 슬라이더 */}
+                {post.images && Array.isArray(post.images) ? (
+                    <div onClick={onClick}>
+                        {isMobile ? (
+                            <Swiper navigation modules={[Navigation]}>
+                                {post.images.map((img, index) => (
+                                    <SwiperSlide key={index}>
+                                        <img
+                                            src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`}
+                                            alt={post.title}
+                                            className="aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
+                                            onClick={() => handleImageClick(img, post, true)}
+                                        />
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
+                        ) : (
+                            <div className="flex space-x-2">
+                                {post.images.map((img, index) => (
+                                    <img
+                                        key={index}
+                                        src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`}
                                         alt={post.title}
-                                        className="aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
+                                        className="w-[32.5%] md:w-[32.8%] aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
                                         onClick={() => handleImageClick(img, post, true)}
                                     />
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-                    ) : (
-                        <div className="flex space-x-2">
-                            {post.images.map((img, index) => (
-                                <img
-                                    key={index}
-                                    src={`${import.meta.env.VITE_PB_API}/files/${post.collectionId}/${post.id}/${img}`}
-                                    alt={post.title}
-                                    className="w-[32.5%] md:w-[32.8%] aspect-square object-cover rounded cursor-pointer hover:shadow-xl hover:opacity-80"
-                                    onClick={() => handleImageClick(img, post, true)}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ) : null}
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ) : null}
+            </div>
 
             <div className="flex justify-between items-center">
                 <div onClick={onClick}>

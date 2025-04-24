@@ -70,7 +70,7 @@ const PostItem = ({
     return (
         <li 
             className="border p-4 mb-2 rounded cursor-pointer hover:bg-slate-100"
-            onClick={() => navigate(`/post/${post.id}`)} // ✅ `state`로 값 전달
+            // onClick={() => navigate(`/post/${post.id}`)} // ✅ `state`로 값 전달
         >
             <PostContent 
                 onClick={(e) => e.stopPropagation()} /* ✅ 부모 이벤트 방지 적용 */
