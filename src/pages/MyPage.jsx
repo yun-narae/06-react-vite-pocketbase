@@ -43,6 +43,23 @@ const MyPage = () => {
         }
     }, [userId]);
 
+    useEffect(() => {
+        if (editing) {
+            // 수정모드 켜졌을 때
+            if (profile) {
+                setNickname(profile.name);
+                setIsNicknameAvailable(false); // 저장 불가능 상태로 초기화
+                setCheckingNickname(false);    // 중복확인 중 상태 초기화
+                setHasCheckedNickname(false); // 중복확인 여부 초기화
+            }
+        } else {
+            // 수정모드 꺼졌을 때
+            setNickname("");
+            setIsNicknameAvailable(false);
+            setCheckingNickname(false);
+        }
+    }, [editing, profile]);
+
     const avatarUrl = profile?.avatar
         ? pb.files.getURL(profile, profile.avatar)
         : "https://via.placeholder.com/150";
