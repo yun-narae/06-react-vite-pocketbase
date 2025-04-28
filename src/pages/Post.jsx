@@ -23,7 +23,6 @@ const Post = () => {
     useEffect(() => {
         console.log("Post 컴포넌트가 리렌더링됨");
     });
-    
 
     const fetchPosts = async () => {
         setIsLoading(true); // 🔹 데이터 요청 시작
@@ -33,7 +32,7 @@ const Post = () => {
                 autoCancel: false,
                 expand: "user", // ✅ 작성자 정보 포함
             });
-    
+            
             posts.forEach(post => {
                 post.updated = post.updated.split("T")[0];
             });
@@ -89,14 +88,6 @@ const Post = () => {
                     fetchPosts={fetchPosts}  // ✅ 이미지 클릭 핸들러 전달
                 />
             )}
-
-            {/* ✅ PostImageModal을 selectedImage 상태에 따라 렌더링 */}
-            {/* {selectedImage && (
-                <PostImageModal 
-                    selectedImage={selectedImage} 
-                    setSelectedImage={setSelectedImage} 
-                />
-            )} */}
         </section>
     );
 };
