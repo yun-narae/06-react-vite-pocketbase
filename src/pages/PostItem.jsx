@@ -19,7 +19,6 @@ const PostItem = ({
     setIsMobile 
 }) => {
     const { selectedImage, setSelectedImage, handleImageClick } = useImageViewer(); // 🔥 커스텀 훅 사용
-    const navigate = useNavigate();
     const [commentCount, setCommentCount] = useState(0); // ✅ 댓글 개수 상태
     
     useEffect(() => {
@@ -67,10 +66,13 @@ const PostItem = ({
         setEditModal(true); 
     };
 
+    const avatarUrl = post?.expand?.user?.avatar
+    ? pb.files.getURL(post.expand.user, post.expand.user.avatar)
+    : "https://via.placeholder.com/150";
+
     return (
         <li 
             className="border p-4 mb-2 rounded cursor-pointer hover:bg-slate-100"
-            onClick={() => navigate(`/post/${post.id}`)} // ✅ `state`로 값 전달
         >
             <PostContent 
                 onClick={(e) => e.stopPropagation()} /* ✅ 부모 이벤트 방지 적용 */
@@ -81,6 +83,7 @@ const PostItem = ({
                 handleEdit={handleEdit}
                 handleImageClick={handleImageClick}
                 commentCount={commentCount}
+                avatarUrl={avatarUrl}
             />
 
             {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}

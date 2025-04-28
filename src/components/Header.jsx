@@ -80,11 +80,19 @@ const Header = ({ isLoggedIn, isDarkMode, setDarkMode, isLoading, setIsLoading }
                         </li>
                     </>
                 )}
+
                 {isLoggedIn && user && (
-                    <li>
-                        <p className="whitespace-nowrap">{user.name}님</p>
-                    </li>
+                    <>
+                        <Link to={`/mypage/${user.id}`} className="hover:underline">
+                            마이페이지
+                        </Link>
+
+                        <li>
+                            <p className="whitespace-nowrap text-gray-500">{user.name}님</p>
+                        </li>
+                    </>
                 )}
+
                 <li className="flex gap-2">
                     <Button
                         type= 'darkMode'

@@ -23,16 +23,20 @@ const Post = () => {
     useEffect(() => {
         console.log("Post 컴포넌트가 리렌더링됨");
     });
-    
 
     const fetchPosts = async () => {
         setIsLoading(true); // 🔹 데이터 요청 시작
         setIsDataLoaded(false); // 🔹 데이터 로드 상태 초기화
         try {
-            const posts = await pb.collection("post").getFullList({ autoCancel: false });
+            const posts = await pb.collection("post").getFullList({
+                autoCancel: false,
+                expand: "user", // ✅ 작성자 정보 포함
+            });
+            
             posts.forEach(post => {
                 post.updated = post.updated.split("T")[0];
             });
+    
             setPostData(posts.sort((a, b) => new Date(b.updated) - new Date(a.updated)));
             setIsDataLoaded(true); // 🔹 데이터 로드 완료
         } catch (error) {
@@ -41,7 +45,7 @@ const Post = () => {
             setIsLoading(false); // 🔹 데이터 요청 완료
         }
     };
-
+    
     return (
         <section className="flex flex-col items-center">
             <div className="flex justify-between w-full max-w-2xl">
@@ -84,14 +88,6 @@ const Post = () => {
                     fetchPosts={fetchPosts}  // ✅ 이미지 클릭 핸들러 전달
                 />
             )}
-
-            {/* ✅ PostImageModal을 selectedImage 상태에 따라 렌더링 */}
-            {/* {selectedImage && (
-                <PostImageModal 
-                    selectedImage={selectedImage} 
-                    setSelectedImage={setSelectedImage} 
-                />
-            )} */}
         </section>
     );
 };

@@ -33,7 +33,9 @@ const PostDetail = () => {
     // 해당하는 id의 게시물 가져오기
     const fetchPost = async () => {
         try {
-            const postData = await pb.collection("post").getOne(id);
+            const postData = await pb.collection("post").getOne(id, {
+                expand: "user", // ✅ 요거 추가!!!
+            });
             setPost(postData);
         } catch (error) {
             console.error("게시물 로드 실패:", error);
@@ -78,6 +80,10 @@ const PostDetail = () => {
 
     if (!post) return <p>게시물을 불러오는 중...</p>;
 
+    const avatarUrl = post?.expand?.user?.avatar
+    ? pb.files.getURL(post.expand.user, post.expand.user.avatar)
+    : "https://via.placeholder.com/150";
+
     return (
         <div className="max-w-2xl mx-auto p-4">
             <button onClick={() => navigate(-1)} className="text-blue-500 mb-4">← 뒤로가기</button>
@@ -92,6 +98,7 @@ const PostDetail = () => {
                     handleImageClick={handleImageClick}
                     commentCount={commentCount}
                     onCommentCountChange={setCommentCount}
+                    avatarUrl={avatarUrl}
                 />
             )}
 

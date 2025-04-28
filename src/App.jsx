@@ -13,6 +13,7 @@ import Post from "./pages/Post";
 import PostDetail from "./pages/PostDetail";
 import { UserProvider } from "./context/UserContext"; // ✅ UserContext 추가
 import StepPostPage from "./pages/StepPostPage";
+import MyPage from './pages/MyPage';
 
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
@@ -120,6 +121,7 @@ function App() {
                         />
                         <Route path="/post/:id" element={<PostDetail />} />
                         <Route path="/post/create" element={<StepPostPage />} />
+                        <Route path="/mypage/:userId" element={<MyPage />} />
                     </Route>
                 </Routes>
             </Router>
