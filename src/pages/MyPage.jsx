@@ -31,6 +31,30 @@ const MyPage = () => {
         <div>
             <h1>{profile.name}님의 마이페이지</h1>
             <img src={avatarUrl} alt="프로필" className="w-32 h-32 rounded-full" />
+
+            {/* 로그인 유저와 비교 후 수정 기능 */}
+            {pb.authStore.model?.id === userId && (
+                <>
+                    <button onClick={() => setEditing(!editing)}>수정하기</button>
+                    {editing && (
+                        <form
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const formData = new FormData();
+                                formData.append("nickname", nickname);
+                                if (avatar) formData.append("avatar", avatar);
+                                await pb.collection("users").update(userId, formData);
+                                alert("수정 완료");
+                                location.reload(); // 또는 상태 갱신
+                            }}
+                        >
+                            <input value={nickname} onChange={(e) => setNickname(e.target.value)} />
+                            <input type="file" onChange={(e) => setAvatar(e.target.files[0])} />
+                            <button type="submit">저장</button>
+                        </form>
+                    )}
+                </>
+            )}
         </div>
     );
 };
