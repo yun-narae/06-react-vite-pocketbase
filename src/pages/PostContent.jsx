@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -6,20 +6,26 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
 
-const PostContent = ({ commentCount, onClick, user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
+const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log("🧩 post:", post);
+        console.log("🧩 post.expand.user:", post.expand?.user);
+        console.log("🧩 post.expand.user.id:", post.expand?.user?.id);
+        console.log("🧩 post.expand.user.name:", post.expand?.user?.name);
+    }, [post]);
 
     return (
         <div>
-            <Link to={`/mypage/${user.id}`} className="mb-2 pb-2 text-gray-500 flex font-bold border-b-2">
-                <b>
-                    {post.editor}님
-                </b>
+            <Link to={`/mypage/${post.expand?.user?.id}`} 
+                className="mb-2 pb-2 text-gray-500 flex font-bold border-b-2 items-center">
+                <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
+                <b>{post.expand?.user?.name}님</b>
             </Link>
 
             <div onClick={() => navigate(`/post/${post.id}`)}>
                 <div className="mb-2">
-                    {/* <p className="font-bold text-gray-700 mb-2">{post.editor}님</p> */}
                     <h2 className="text-xl font-bold">{post.title}</h2>
                     <p className="text-gray-700 mb-2">{post.description}</p>
                     <p className="text-sm text-gray-500">
@@ -28,7 +34,7 @@ const PostContent = ({ commentCount, onClick, user, post, handleImageClick, isMo
                 </div>
                 {/* 이미지 슬라이더 */}
                 {post.images && Array.isArray(post.images) ? (
-                    <div onClick={onClick}>
+                    <div>
                         {isMobile ? (
                             <Swiper navigation modules={[Navigation]}>
                                 {post.images.map((img, index) => (
@@ -60,13 +66,13 @@ const PostContent = ({ commentCount, onClick, user, post, handleImageClick, isMo
             </div>
 
             <div className="flex justify-between items-center">
-                <div onClick={onClick}>
+                <div>
                     <p className="font-bold text-xs text-gray-500 mt-2">
                         댓글 ({commentCount}개)
                     </p>
                 </div>
                 {post && user && post.editor === user.name && (
-                    <div onClick={onClick}>
+                    <div>
                         <button
                             onClick={() => handleEdit(post)}
                             className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded"
