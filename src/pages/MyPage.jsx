@@ -226,7 +226,7 @@ const MyPage = () => {
                         {/* ✅ 현재 로그인 유저가 이 페이지의 유저일 때만 취소 버튼 표시 */}
                         {isMyPage && user?.id === thisUser?.userId && (
                             <button
-                            onClick={async () => {
+                            onClick={async (e) => {
                                 e.stopPropagation(); // ⭐️ 리스트 클릭 방지
                                 const updated = reservations.filter(r => r.userId !== userId);
                                 await pb.collection("post").update(post.id, {
