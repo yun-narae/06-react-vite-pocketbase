@@ -84,6 +84,7 @@ const PostItem = ({
                 handleImageClick={handleImageClick}
                 commentCount={commentCount}
                 avatarUrl={avatarUrl}
+                fetchPosts={fetchPosts}
             />
 
             {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
