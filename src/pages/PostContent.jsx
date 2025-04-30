@@ -114,9 +114,11 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
             <div className="flex items-center justify-end">
                 <p className="text-xs mr-2">{reservedCount} / {post.capacity}</p>
                 {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화 해야함 */}
-                <button onClick={() => setShowReserveModal(true)} className="bg-blue-500 text-white px-2 py-1 rounded">
+                {!isClosed && user?.id !== post.expand?.user?.id && (
+                    <button onClick={() => setShowReserveModal(true)} className="bg-blue-500 text-white px-2 py-1 rounded">
                     예약하기
-                </button>
+                    </button>
+                )}
 
                 {showReserveModal && (
                     <ReserveModal
