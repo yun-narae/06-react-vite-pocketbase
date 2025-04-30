@@ -22,15 +22,6 @@ const PostContent = ({
   }) => {
     const navigate = useNavigate();
     const [showReserveModal, setShowReserveModal] = useState(false);
-    const daysLeft = Math.ceil((new Date(post.date) - new Date()) / (1000 * 60 * 60 * 24));
-    const isClosingSoon = daysLeft > 0 && daysLeft <= 3;
-
-    useEffect(() => {
-        console.log("🧩 post:", post);
-        console.log("🧩 post.expand.user:", post.expand?.user);
-        console.log("🧩 post.expand.user.id:", post.expand?.user?.id);
-        console.log("🧩 post.expand.user.name:", post.expand?.user?.name);
-    }, [post]);
 
     // 예약 정보 파싱
     const reservedUsers = (() => {
@@ -41,8 +32,22 @@ const PostContent = ({
         }
     })();
 
+    const daysLeft = Math.ceil((new Date(post.date) - new Date()) / (1000 * 60 * 60 * 24));
+    const isDateClosingSoon = daysLeft > 0 && daysLeft <= 3;
+    
     const reservedCount = reservedUsers.reduce((sum, r) => sum + r.count, 0);
     const isClosed = new Date(post.date) < new Date() || reservedCount >= Number(post.capacity);
+    const remainingSpots = Number(post.capacity) - reservedCount;
+    const isSpotsFew = remainingSpots <= Number(post.capacity) / 3;
+
+    const isClosingSoon = !isClosed && (isDateClosingSoon || isSpotsFew);
+
+    useEffect(() => {
+        console.log("🧩 post:", post);
+        console.log("🧩 post.expand.user:", post.expand?.user);
+        console.log("🧩 post.expand.user.id:", post.expand?.user?.id);
+        console.log("🧩 post.expand.user.name:", post.expand?.user?.name);
+    }, [post]);
     
     const getAvatarUrl = (userId, avatar) => {
         if (!avatar) return "https://via.placeholder.com/40";
@@ -57,16 +62,16 @@ const PostContent = ({
                     <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
                     <b className="whitespace-nowrap">{post.expand?.user?.name}님</b>
                 </Link>
-                <div className="relative">
+                <div className="flex items-center gap-1">
+                    {isClosingSoon && (
+                        <p className="top-7 right-0 whitespace-nowrap text-xs px-2 py-1 text-white bg-orange-500 rounded-md">
+                            마감 임박
+                        </p>
+                    )}
                     {isClosed ? (
                         <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md whitespace-nowrap">모집 마감</p>
                         ) : (
                         <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md whitespace-nowrap">모집중</p>
-                    )}
-                    {isClosingSoon && !isClosed && (
-                        <p className="absolute top-7 right-0 whitespace-nowrap text-xs px-2 py-1 text-white bg-orange-500 rounded-md">
-                            ⚠ 마감 {daysLeft}일 전
-                        </p>
                     )}
                 </div>
             </div>
