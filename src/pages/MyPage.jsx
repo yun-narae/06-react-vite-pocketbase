@@ -17,7 +17,7 @@ const MyPage = () => {
     const [checkingNickname, setCheckingNickname] = useState(false); // ✅ 중복 체크 중 여부
     const [reservedPosts, setReservedPosts] = useState([]); // 예약관련 리스트
     const isMyPage = user?.id === userId; // 로그인한 본인의 마이페이지인지 여부
-
+    
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -215,7 +215,11 @@ const MyPage = () => {
                 const thisUser = reservations.find(r => r.userId === userId);
 
                 return (
-                    <li key={post.id} className="border p-4 rounded">
+                    <li 
+                        key={post.id} 
+                        className="border p-4 rounded"
+                        onClick={() => navigate(`/post/${post.id}`)}
+                    >
                         <h3 className="font-bold text-lg">{post.title}</h3>
                         <p className="text-sm text-gray-600">{post.date} | {post.timeStart} ~ {post.timeEnd}</p>
 
@@ -223,6 +227,7 @@ const MyPage = () => {
                         {isMyPage && user?.id === thisUser?.userId && (
                             <button
                             onClick={async () => {
+                                e.stopPropagation(); // ⭐️ 리스트 클릭 방지
                                 const updated = reservations.filter(r => r.userId !== userId);
                                 await pb.collection("post").update(post.id, {
                                 reservations: JSON.stringify(updated)
