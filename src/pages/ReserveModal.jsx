@@ -25,9 +25,10 @@ const ReserveModal = ({ post, onClose, fetchPosts }) => {
     }
 
     const newReservations = [...existing, {
-      name: user.name,
-      userId: user.id,
-      count: 1,
+        name: user.name,
+        userId: user.id,
+        count: 1,
+        avatar: user.avatar || "",
     }];
 
     setLoading(true);

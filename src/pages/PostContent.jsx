@@ -6,8 +6,19 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
 import ReserveModal from "./ReserveModal";
+import pb from "../lib/pocketbase";
 
-const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, isMobile, handleDelete, handleEdit, fetchPosts }) => {
+const PostContent = ({
+    avatarUrl,
+    commentCount,
+    user,
+    post,
+    handleImageClick,
+    isMobile,
+    handleDelete,
+    handleEdit,
+    fetchPosts,
+  }) => {
     const navigate = useNavigate();
     const [showReserveModal, setShowReserveModal] = useState(false);
 
@@ -29,6 +40,11 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
 
     const reservedCount = reservedUsers.reduce((sum, r) => sum + r.count, 0);
     const isClosed = new Date(post.date) < new Date() || reservedCount >= Number(post.capacity);
+    
+    const getAvatarUrl = (userId, avatar) => {
+        if (!avatar) return "https://via.placeholder.com/40";
+        return `${pb.baseUrl}/api/files/users/${userId}/${avatar}`;
+    };
 
     return (
         <div>
@@ -129,15 +145,19 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
                 )}
             </div>
 
-            {/* PostDetail페이지에서 열었을 경우 보여야 함 */}
-            {/* 예약한 유저 목록 */}
             {reservedUsers.length > 0 && (
                 <div className="mt-4">
                 <b className="block mb-2">현재 예약한 인원들</b>
                 <ul className="flex flex-wrap gap-2">
                     {reservedUsers.map((r, i) => (
                     <li key={i} className="text-gray-500 flex items-center text-xs">
+                        <img
+                        src={getAvatarUrl(r.userId, r.avatar)}
+                        alt={r.name}
+                        className="w-6 h-6 rounded-full mr-1"
+                        />
                         <span className="font-bold">{r.name}</span>
+                        <span className="ml-1">({r.count}명)</span>
                     </li>
                     ))}
                 </ul>
