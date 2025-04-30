@@ -18,6 +18,18 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
         console.log("🧩 post.expand.user.name:", post.expand?.user?.name);
     }, [post]);
 
+    // 예약 정보 파싱
+    const reservedUsers = (() => {
+        try {
+        return post.reservations ? JSON.parse(post.reservations) : [];
+        } catch {
+        return [];
+        }
+    })();
+
+    const reservedCount = reservedUsers.reduce((sum, r) => sum + r.count, 0);
+    const isClosed = new Date(post.date) < new Date() || reservedCount >= Number(post.capacity);
+
     return (
         <div>
             <div className="border-b-2 flex items-center justify-between pb-2">
@@ -26,8 +38,11 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
                     <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
                     <b>{post.expand?.user?.name}님</b>
                 </Link>
-                <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md">모집 마감</p>
-                <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md">모집중</p>
+                {isClosed ? (
+                    <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md">모집 마감</p>
+                    ) : (
+                    <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md">모집중</p>
+                )}
             </div>
 
             <div onClick={() => navigate(`/post/${post.id}`)}>
@@ -111,6 +126,22 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
                     />
                 )}
             </div>
+
+            {/* PostDetail페이지에서 열었을 경우 보여야 함 */}
+            {/* 예약한 유저 목록 */}
+            {reservedUsers.length > 0 && (
+                <div className="mt-4">
+                <b className="block mb-2">현재 예약한 인원들</b>
+                <ul className="flex flex-wrap gap-2">
+                    {reservedUsers.map((r, i) => (
+                    <li key={i} className="text-gray-500 flex items-center text-xs">
+                        <span className="font-bold">{r.name}</span>
+                        <span className="ml-1">({r.count}명)</span>
+                    </li>
+                    ))}
+                </ul>
+                </div>
+            )}
         </div>
     );
 };
