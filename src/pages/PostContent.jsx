@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
+import ReserveModal from "./ReserveModal";
 
-const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
+const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, isMobile, handleDelete, handleEdit, fetchPosts }) => {
     const navigate = useNavigate();
+    const [showReserveModal, setShowReserveModal] = useState(false);
 
     useEffect(() => {
         console.log("🧩 post:", post);
@@ -24,10 +26,8 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
                     <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
                     <b>{post.expand?.user?.name}님</b>
                 </Link>
-                {/* 뱃지 - 모집중 */}
-                <p className="text-xs px-2 py-1 text-white bg-blue-500 w-fit h-fit rounded-md">모집중</p>
-                {/* 뱃지 - 모집마감 */}
-                <p className="text-xs px-2 py-1 text-white bg-gray-500 w-fit h-fit rounded-md">모집 마감</p>
+                <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md">모집 마감</p>
+                <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md">모집중</p>
             </div>
 
             <div onClick={() => navigate(`/post/${post.id}`)}>
@@ -98,23 +98,18 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
             {/* 예약관련 */}
             <div className="flex items-center justify-end">
                 <p className="text-xs mr-2">0/{post.capacity}</p>
-                {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화*/}
-                <button className="text-xs px-2 py-1 bg-emerald-600 text-white rounded">예약하기</button>
-            </div>
+                {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화 해야함 */}
+                <button onClick={() => setShowReserveModal(true)} className="bg-blue-500 text-white px-2 py-1 rounded">
+                    예약하기
+                </button>
 
-            {/* PostDetail페이지에서 열었을 경우 보임 */}
-            <div>
-                <b className="block mb-2">현재 예약한 인원들</b>
-                <ul className="flex flex-wrap gap-2">
-                    <li className="text-gray-500 flex items-center">
-                        <img src="해당 유저의 프로필" alt="프로필" className="w-6 h-6 rounded-full mr-1" />
-                        <b className="text-xs">신청한 user의 name1</b>
-                    </li>
-                    <li className="text-gray-500 flex items-center">
-                        <img src="해당 유저의 프로필" alt="프로필" className="w-6 h-6 rounded-full mr-1" />
-                        <b className="text-xs">신청한 user의 name2</b>
-                    </li>
-                </ul>
+                {showReserveModal && (
+                    <ReserveModal
+                        post={post}
+                        fetchPosts={fetchPosts}
+                        onClose={() => setShowReserveModal(false)}
+                    />
+                )}
             </div>
         </div>
     );
