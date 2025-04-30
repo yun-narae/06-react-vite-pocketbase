@@ -21,6 +21,8 @@ const PostContent = ({
   }) => {
     const navigate = useNavigate();
     const [showReserveModal, setShowReserveModal] = useState(false);
+    const daysLeft = Math.ceil((new Date(post.date) - new Date()) / (1000 * 60 * 60 * 24));
+    const isClosingSoon = daysLeft > 0 && daysLeft <= 3;
 
     useEffect(() => {
         console.log("🧩 post:", post);
@@ -52,13 +54,20 @@ const PostContent = ({
                 <Link to={`/mypage/${post.expand?.user?.id}`}
                     className="text-gray-500 flex font-bold items-center">
                     <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
-                    <b>{post.expand?.user?.name}님</b>
+                    <b className="whitespace-nowrap">{post.expand?.user?.name}님</b>
                 </Link>
-                {isClosed ? (
-                    <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md">모집 마감</p>
-                    ) : (
-                    <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md">모집중</p>
-                )}
+                <div className="relative">
+                    {isClosed ? (
+                        <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md whitespace-nowrap">모집 마감</p>
+                        ) : (
+                        <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md whitespace-nowrap">모집중</p>
+                    )}
+                    {isClosingSoon && !isClosed && (
+                        <p className="absolute top-7 right-0 whitespace-nowrap text-xs px-2 py-1 text-white bg-orange-500 rounded-md">
+                            ⚠ 마감 {daysLeft}일 전
+                        </p>
+                    )}
+                </div>
             </div>
 
             <div onClick={() => navigate(`/post/${post.id}`)}>
@@ -131,8 +140,11 @@ const PostContent = ({
                 <p className="text-xs mr-2">{reservedCount} / {post.capacity}</p>
                 {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화 해야함 */}
                 {!isClosed && user?.id !== post.expand?.user?.id && (
-                    <button onClick={() => setShowReserveModal(true)} className="bg-blue-500 text-white px-2 py-1 rounded">
-                    예약하기
+                    <button 
+                        onClick={() => setShowReserveModal(true)} 
+                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                    >
+                        예약하기
                     </button>
                 )}
 
