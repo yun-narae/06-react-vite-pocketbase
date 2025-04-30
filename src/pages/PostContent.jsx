@@ -112,7 +112,7 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
 
             {/* 예약관련 */}
             <div className="flex items-center justify-end">
-                <p className="text-xs mr-2">0/{post.capacity}</p>
+                <p className="text-xs mr-2">{reservedCount} / {post.capacity}</p>
                 {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화 해야함 */}
                 <button onClick={() => setShowReserveModal(true)} className="bg-blue-500 text-white px-2 py-1 rounded">
                     예약하기
@@ -136,7 +136,6 @@ const PostContent = ({ avatarUrl, commentCount, user, post, handleImageClick, is
                     {reservedUsers.map((r, i) => (
                     <li key={i} className="text-gray-500 flex items-center text-xs">
                         <span className="font-bold">{r.name}</span>
-                        <span className="ml-1">({r.count}명)</span>
                     </li>
                     ))}
                 </ul>
