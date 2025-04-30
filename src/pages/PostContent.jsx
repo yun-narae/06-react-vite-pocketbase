@@ -18,6 +18,7 @@ const PostContent = ({
     handleDelete,
     handleEdit,
     fetchPosts,
+    showReservationsList,
   }) => {
     const navigate = useNavigate();
     const [showReserveModal, setShowReserveModal] = useState(false);
@@ -157,7 +158,7 @@ const PostContent = ({
                 )}
             </div>
 
-            {reservedUsers.length > 0 && (
+            {showReservationsList && reservedUsers.length > 0 && (
                 <div className="mt-4">
                 <b className="block mb-2">현재 예약한 인원들</b>
                 <ul className="flex flex-wrap gap-2">

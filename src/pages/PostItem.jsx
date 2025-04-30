@@ -85,6 +85,7 @@ const PostItem = ({
                 commentCount={commentCount}
                 avatarUrl={avatarUrl}
                 fetchPosts={fetchPosts}
+                showReservationsList={false} // ❌ 예약자 목록 숨김
             />
 
             {/* ✅ PostImageModal 추가하여 클릭한 이미지 확대 가능 */}
