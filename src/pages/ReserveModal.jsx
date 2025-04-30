@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import pb from "../lib/pocketbase";
 import { useUser } from "../context/UserContext";
 
-const ReserveModal = ({ post, onClose, fetchPost }) => {
+const ReserveModal = ({ post, onClose, fetchPosts }) => {
   const user = useUser();
   const [loading, setLoading] = useState(false);
 
@@ -32,17 +32,17 @@ const ReserveModal = ({ post, onClose, fetchPost }) => {
 
     setLoading(true);
     try {
-      await pb.collection("post").update(post.id, {
-        reservations: JSON.stringify(newReservations),
-      });
-      alert("예약 완료!");
-      if (fetchPost) fetchPost();
-      onClose();
+        await pb.collection("post").update(post.id, {
+            reservations: JSON.stringify(newReservations),
+        });
+        alert("예약 완료!");
+        if (fetchPosts) fetchPosts();
+        onClose();
     } catch (err) {
-      console.error("예약 실패:", err);
-      alert("예약에 실패했습니다");
+        console.error("예약 실패:", err);
+        alert("예약에 실패했습니다");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
