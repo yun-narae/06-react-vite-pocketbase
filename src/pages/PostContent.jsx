@@ -18,11 +18,17 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
 
     return (
         <div>
-            <Link to={`/mypage/${post.expand?.user?.id}`} 
-                className="mb-2 pb-2 text-gray-500 flex font-bold border-b-2 items-center">
-                <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
-                <b>{post.expand?.user?.name}님</b>
-            </Link>
+            <div className="border-b-2 flex items-center justify-between pb-2">
+                <Link to={`/mypage/${post.expand?.user?.id}`}
+                    className="text-gray-500 flex font-bold items-center">
+                    <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
+                    <b>{post.expand?.user?.name}님</b>
+                </Link>
+                {/* 뱃지 - 모집중 */}
+                <p className="text-xs px-2 py-1 text-white bg-blue-500 w-fit h-fit rounded-md">모집중</p>
+                {/* 뱃지 - 모집마감 */}
+                <p className="text-xs px-2 py-1 text-white bg-gray-500 w-fit h-fit rounded-md">모집 마감</p>
+            </div>
 
             <div onClick={() => navigate(`/post/${post.id}`)}>
                 <div className="mb-2">
@@ -65,7 +71,7 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
                 ) : null}
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-3">
                 <div>
                     <p className="font-bold text-xs text-gray-500 mt-2">
                         댓글 ({commentCount}개)
@@ -75,18 +81,40 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
                     <div>
                         <button
                             onClick={() => handleEdit(post)}
-                            className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded"
+                            className="text-xs px-2 py-1 mt-2 bg-yellow-500 text-white rounded"
                         >
                             수정
                         </button>
                         <button
                             onClick={() => handleDelete(post)}
-                            className="ml-2 px-2 py-1 bg-red-500 text-white rounded"
+                            className="text-xs px-2 py-1 ml-2 bg-red-500 text-white rounded"
                         >
                             삭제
                         </button>
                     </div>
                 )}
+            </div>
+
+            {/* 예약관련 */}
+            <div className="flex items-center justify-end">
+                <p className="text-xs mr-2">0/{post.capacity}</p>
+                {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화*/}
+                <button className="text-xs px-2 py-1 bg-emerald-600 text-white rounded">예약하기</button>
+            </div>
+
+            {/* PostDetail페이지에서 열었을 경우 보임 */}
+            <div>
+                <b className="block mb-2">현재 예약한 인원들</b>
+                <ul className="flex flex-wrap gap-2">
+                    <li className="text-gray-500 flex items-center">
+                        <img src="해당 유저의 프로필" alt="프로필" className="w-6 h-6 rounded-full mr-1" />
+                        <b className="text-xs">신청한 user의 name1</b>
+                    </li>
+                    <li className="text-gray-500 flex items-center">
+                        <img src="해당 유저의 프로필" alt="프로필" className="w-6 h-6 rounded-full mr-1" />
+                        <b className="text-xs">신청한 user의 name2</b>
+                    </li>
+                </ul>
             </div>
         </div>
     );
