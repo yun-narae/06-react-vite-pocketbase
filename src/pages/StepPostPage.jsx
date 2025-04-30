@@ -156,24 +156,19 @@ const StepPostPage = ({ post }) => {
         });
     };
 
-    const uploadFiles = async (e) => {
+      const uploadFiles = async (e) => {
         const files = Array.from(e.target.files);
       
-        if ((post?.field?.length || 0) + postImgs.length + files.length > 3) {
+        if ((post?.images?.length || 0) + postImgs.length + files.length > 3) {
           alert("업로드 이미지 개수를 초과하였습니다. (최대 3개)");
           return;
         }
       
-        try {
-          const compressedFiles = await compressImages(files); // ⬅️ 이미지 압축 훅 사용
-      
-          const newPreviewImgs = compressedFiles.map(file => URL.createObjectURL(file));
-          setPostImgs(prev => [...prev, ...compressedFiles].slice(0, 3));
-          setPreviewImgs(prev => [...prev, ...newPreviewImgs].slice(0, 3));
-        } catch (err) {
-          alert("이미지 압축 중 문제가 발생했습니다.");
-        }
+        const newPreviewImgs = files.map((file) => URL.createObjectURL(file));
+        setPostImgs((prev) => [...prev, ...files].slice(0, 3));
+        setPreviewImgs((prev) => [...prev, ...newPreviewImgs].slice(0, 3));
       };
+      
 
     const removePreviewImage = (index) => {
         setPreviewImgs(prev => prev.filter((_, i) => i !== index));
