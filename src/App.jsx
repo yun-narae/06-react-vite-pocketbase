@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import pb from "./lib/pocketbase";
-import Register from "./Auth/Register";
-import Login from "./Auth/Login";
-import RegistrationSuccess from "./Auth/RegistrationSuccess";
-import Header from "./components/Header";
-import Layout from "./pages/Layout"; // Layout 컴포넌트 추가
-import Home from "./pages/Home"; // Home 컴포넌트 추가
-import FileList from "./pages/FileList";
-import FavoriteFiles from "./pages/FavoriteFiles";
-import Post from "./pages/Post";
-import PostDetail from "./pages/PostDetail";
 import { UserProvider } from "./context/UserContext"; // ✅ UserContext 추가
-import StepPostPage from "./pages/StepPostPage";
-import MyPage from './pages/MyPage';
+const Register = lazy(() => import("./Auth/Register"));
+const Login = lazy(() => import("./Auth/Login"));
+const RegistrationSuccess = lazy(() => import("./Auth/RegistrationSuccess"));
+const Header = lazy(() => import("./components/Header"));
+const Layout = lazy(() => import("./pages/Layout"));
+const Home = lazy(() => import("./pages/Home"));
+const FileList = lazy(() => import("./pages/FileList"));
+const FavoriteFiles = lazy(() => import("./pages/FavoriteFiles"));
+const Post = lazy(() => import("./pages/Post"));
+const PostDetail = lazy(() => import("./pages/PostDetail"));
+const StepPostPage = lazy(() => import("./pages/StepPostPage"));
+const MyPage = lazy(() => import("./pages/MyPage"));
+
 
 function App() {
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태 관리
@@ -77,55 +78,53 @@ function App() {
     };
 
     return (
-        <UserProvider> {/* ✅ `user`를 전역에서 관리하도록 설정 */}
+        <UserProvider>
+            {/* ✅ `user`를 전역에서 관리하도록 설정 */}
             <Router basename={process.env.VITE_PUBLIC_URL}>
+              <Suspense fallback={<div className="p-4 text-center">페이지 로딩 중...</div>}>
                 <Header 
-                    isLoggedIn={isLoggedIn} 
-                    isDarkMode={isDarkMode} 
-                    setDarkMode={setDarkMode}
-                    isLoading={isLoading}
-                    setIsLoading={setIsLoading}
+                  isLoggedIn={isLoggedIn} 
+                  isDarkMode={isDarkMode} 
+                  setDarkMode={setDarkMode}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
                 />
                 <Routes>
-                    <Route path="/" element={<Layout />}>
-                        <Route
-                            index
-                            element={<Home 
-                                isLoggedIn={isLoggedIn} 
-                                setIsLoggedIn={setIsLoggedIn} 
-                                setLoggedInUserId={setLoggedInUserId} 
-                                isDarkMode={isDarkMode}
-                                onLogout={handleLogout} // 로그아웃 함수 전달
-                            />}
+                  <Route path="/" element={<Layout />}>
+                    <Route
+                      index
+                      element={
+                        <Home
+                          isLoggedIn={isLoggedIn}
+                          setIsLoggedIn={setIsLoggedIn}
+                          setLoggedInUserId={setLoggedInUserId}
+                          isDarkMode={isDarkMode}
+                          onLogout={handleLogout}
                         />
-                        <Route path="/login" element={<Login 
-                                isLoggedIn={isLoggedIn} 
-                                setIsLoggedIn={setIsLoggedIn} 
-                                setLoggedInUserId={setLoggedInUserId}
-                                isLoading={isLoading}
-                                setIsLoading={setIsLoading}
-                            />} />
-                        <Route path="/register" element={<Register isLoading={isLoading} setIsLoading={setIsLoading}/>} />
-                        <Route path="/registration-success" element={<RegistrationSuccess isLoading={isLoading} setIsLoading={setIsLoading}/>} />
-                        <Route 
-                            path="/fileList" 
-                            element={<FileList isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
-                        />
-                        <Route 
-                            path="/favorites" 
-                            element={<FavoriteFiles isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>} 
-                        />
-                        <Route 
-                            path="/post"
-                            element={<Post isLoggedIn={isLoggedIn}  loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading}/>}
-                        />
-                        <Route path="/post/:id" element={<PostDetail />} />
-                        <Route path="/post/create" element={<StepPostPage />} />
-                        <Route path="/mypage/:userId" element={<MyPage />} />
-                    </Route>
+                      }
+                    />
+                    <Route path="/login" element={
+                      <Login 
+                        isLoggedIn={isLoggedIn} 
+                        setIsLoggedIn={setIsLoggedIn} 
+                        setLoggedInUserId={setLoggedInUserId}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
+                      />} 
+                    />
+                    <Route path="/register" element={<Register isLoading={isLoading} setIsLoading={setIsLoading} />} />
+                    <Route path="/registration-success" element={<RegistrationSuccess isLoading={isLoading} setIsLoading={setIsLoading} />} />
+                    <Route path="/fileList" element={<FileList isLoggedIn={isLoggedIn} loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading} />} />
+                    <Route path="/favorites" element={<FavoriteFiles isLoggedIn={isLoggedIn} loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading} />} />
+                    <Route path="/post" element={<Post isLoggedIn={isLoggedIn} loggedInUserId={loggedInUserId} isLoading={isLoading} setIsLoading={setIsLoading} />} />
+                    <Route path="/post/:id" element={<PostDetail />} />
+                    <Route path="/post/create" element={<StepPostPage />} />
+                    <Route path="/mypage/:userId" element={<MyPage />} />
+                  </Route>
                 </Routes>
+              </Suspense>
             </Router>
-        </UserProvider>
+          </UserProvider>
     );
 }
 
