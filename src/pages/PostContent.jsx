@@ -175,7 +175,6 @@ const PostContent = ({
                         className="w-6 h-6 rounded-full mr-1"
                         />
                         <span className="font-bold">{r.name}</span>
-                        <span className="ml-1">({r.count}명)</span>
                     </li>
                     ))}
                 </ul>
