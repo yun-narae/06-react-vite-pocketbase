@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import pb from "../lib/pocketbase";
+import { useUser } from "../context/UserContext";
 
 const MyPage = () => {
     const { userId } = useParams();
+    const user = useUser(); // 로그인한 사용자
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [editing, setEditing] = useState(false);
@@ -13,7 +15,9 @@ const MyPage = () => {
     const [isNicknameAvailable, setIsNicknameAvailable] = useState(true);
     const [hasCheckedNickname, setHasCheckedNickname] = useState(false); // ✅ 중복확인 버튼 누른 적 있는지
     const [checkingNickname, setCheckingNickname] = useState(false); // ✅ 중복 체크 중 여부
-
+    const [reservedPosts, setReservedPosts] = useState([]); // 예약관련 리스트
+    const isMyPage = user?.id === userId; // 로그인한 본인의 마이페이지인지 여부
+    
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -59,6 +63,25 @@ const MyPage = () => {
             setCheckingNickname(false);
         }
     }, [editing, profile]);
+
+    const fetchReservedPosts = async () => {
+        const allPosts = await pb.collection("post").getFullList({ expand: "user" });
+      
+        const filtered = allPosts.filter(post => {
+          try {
+            const reservations = JSON.parse(post.reservations || "[]");
+            return reservations.some(r => r.userId === userId); // 마이페이지 주인 기준!
+          } catch {
+            return false;
+          }
+        });
+      
+        setReservedPosts(filtered);
+      };
+
+    useEffect(() => {
+        if (userId) fetchReservedPosts();
+    }, [userId]);
 
     const avatarUrl = profile?.avatar
         ? pb.files.getURL(profile, profile.avatar)
@@ -183,6 +206,49 @@ const MyPage = () => {
             ) : (
                 <p>작성한 게시글이 없습니다.</p>
             )}
+
+            <h2 className="text-xl font-semibold mt-8 mb-4">예약한 모임</h2>
+            {reservedPosts.length > 0 ? (
+            <ul className="space-y-4">
+                {reservedPosts.map((post) => {
+                const reservations = JSON.parse(post.reservations || "[]");
+                const thisUser = reservations.find(r => r.userId === userId);
+
+                return (
+                    <li 
+                        key={post.id} 
+                        className="border p-4 rounded"
+                        onClick={() => navigate(`/post/${post.id}`)}
+                    >
+                        <h3 className="font-bold text-lg">{post.title}</h3>
+                        <p className="text-sm text-gray-600">{post.date} | {post.timeStart} ~ {post.timeEnd}</p>
+
+                        {/* ✅ 현재 로그인 유저가 이 페이지의 유저일 때만 취소 버튼 표시 */}
+                        {isMyPage && user?.id === thisUser?.userId && (
+                            <button
+                            onClick={async (e) => {
+                                e.stopPropagation(); // ⭐️ 리스트 클릭 방지
+                                const updated = reservations.filter(r => r.userId !== userId);
+                                await pb.collection("post").update(post.id, {
+                                reservations: JSON.stringify(updated)
+                                });
+                                alert("예약이 취소되었습니다.");
+                                fetchReservedPosts();
+                            }}
+                            className="mt-2 px-3 py-1 bg-red-500 text-white text-sm rounded"
+                            >
+                            예약 취소
+                            </button>
+                        )}
+                    </li>
+                );
+                })}
+            </ul>
+            ) : (
+            <p className="text-gray-500">예약한 모임이 없습니다.</p>
+            )}
+
+
         </div>
     );
 };

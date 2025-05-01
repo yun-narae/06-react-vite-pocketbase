@@ -99,6 +99,8 @@ const PostDetail = () => {
                     commentCount={commentCount}
                     onCommentCountChange={setCommentCount}
                     avatarUrl={avatarUrl}
+                    showReservationsList={true} // ✅ 예약자 목록 표시
+                    fetchPosts={fetchPosts}
                 />
             )}
 

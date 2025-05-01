@@ -1,13 +1,46 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { Link } from "react-router-dom";
+import ReserveModal from "./ReserveModal";
+import pb from "../lib/pocketbase";
 
-const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImageClick, isMobile, handleDelete, handleEdit }) => {
+const PostContent = ({
+    avatarUrl,
+    commentCount,
+    user,
+    post,
+    handleImageClick,
+    isMobile,
+    handleDelete,
+    handleEdit,
+    fetchPosts,
+    showReservationsList,
+  }) => {
     const navigate = useNavigate();
+    const [showReserveModal, setShowReserveModal] = useState(false);
+
+    // 예약 정보 파싱
+    const reservedUsers = (() => {
+        try {
+        return post.reservations ? JSON.parse(post.reservations) : [];
+        } catch {
+        return [];
+        }
+    })();
+
+    const daysLeft = Math.ceil((new Date(post.date) - new Date()) / (1000 * 60 * 60 * 24));
+    const isDateClosingSoon = daysLeft > 0 && daysLeft <= 3;
+    
+    const reservedCount = reservedUsers.reduce((sum, r) => sum + r.count, 0);
+    const isClosed = new Date(post.date) < new Date() || reservedCount >= Number(post.capacity);
+    const remainingSpots = Number(post.capacity) - reservedCount;
+    const isSpotsFew = remainingSpots <= Number(post.capacity) / 3;
+
+    const isClosingSoon = !isClosed && (isDateClosingSoon || isSpotsFew);
 
     useEffect(() => {
         console.log("🧩 post:", post);
@@ -15,14 +48,33 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
         console.log("🧩 post.expand.user.id:", post.expand?.user?.id);
         console.log("🧩 post.expand.user.name:", post.expand?.user?.name);
     }, [post]);
+    
+    const getAvatarUrl = (userId, avatar) => {
+        if (!avatar) return "https://via.placeholder.com/40";
+        return `${pb.baseUrl}/api/files/users/${userId}/${avatar}`;
+    };
 
     return (
         <div>
-            <Link to={`/mypage/${post.expand?.user?.id}`} 
-                className="mb-2 pb-2 text-gray-500 flex font-bold border-b-2 items-center">
-                <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
-                <b>{post.expand?.user?.name}님</b>
-            </Link>
+            <div className="border-b-2 flex items-center justify-between pb-2">
+                <Link to={`/mypage/${post.expand?.user?.id}`}
+                    className="text-gray-500 flex font-bold items-center">
+                    <img src={avatarUrl} alt="프로필" className="w-8 h-8 rounded-full mr-1" />
+                    <b className="whitespace-nowrap">{post.expand?.user?.name}님</b>
+                </Link>
+                <div className="flex items-center gap-1">
+                    {isClosingSoon && (
+                        <p className="top-7 right-0 whitespace-nowrap text-xs px-2 py-1 text-white bg-orange-500 rounded-md">
+                            마감 임박
+                        </p>
+                    )}
+                    {isClosed ? (
+                        <p className="text-xs px-2 py-1 text-white bg-gray-500 rounded-md whitespace-nowrap">모집 마감</p>
+                        ) : (
+                        <p className="text-xs px-2 py-1 text-white bg-blue-500 rounded-md whitespace-nowrap">모집중</p>
+                    )}
+                </div>
+            </div>
 
             <div onClick={() => navigate(`/post/${post.id}`)}>
                 <div className="mb-2">
@@ -65,7 +117,7 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
                 ) : null}
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-3">
                 <div>
                     <p className="font-bold text-xs text-gray-500 mt-2">
                         댓글 ({commentCount}개)
@@ -75,19 +127,59 @@ const PostContent = ({ avatarUrl, commentCount, onClick, user, post, handleImage
                     <div>
                         <button
                             onClick={() => handleEdit(post)}
-                            className="mt-2 px-2 py-1 bg-yellow-500 text-white rounded"
+                            className="text-xs px-2 py-1 mt-2 bg-yellow-500 text-white rounded"
                         >
                             수정
                         </button>
                         <button
                             onClick={() => handleDelete(post)}
-                            className="ml-2 px-2 py-1 bg-red-500 text-white rounded"
+                            className="text-xs px-2 py-1 ml-2 bg-red-500 text-white rounded"
                         >
                             삭제
                         </button>
                     </div>
                 )}
             </div>
+
+            {/* 예약관련 */}
+            <div className="flex items-center justify-end">
+                <p className="text-xs mr-2">{reservedCount} / {post.capacity}</p>
+                {/* 다른 유저가 쓴 게시물 일경우 예약하기 버튼 활성화 해야함 */}
+                {!isClosed && user?.id !== post.expand?.user?.id && (
+                    <button 
+                        onClick={() => setShowReserveModal(true)} 
+                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                    >
+                        예약하기
+                    </button>
+                )}
+
+                {showReserveModal && (
+                    <ReserveModal
+                        post={post}
+                        fetchPosts={fetchPosts}
+                        onClose={() => setShowReserveModal(false)}
+                    />
+                )}
+            </div>
+
+            {showReservationsList && reservedUsers.length > 0 && (
+                <div className="mt-4">
+                <b className="block mb-2">현재 예약한 인원들</b>
+                <ul className="flex flex-wrap gap-2">
+                    {reservedUsers.map((r, i) => (
+                    <li key={i} className="text-gray-500 flex items-center text-xs">
+                        <img
+                        src={getAvatarUrl(r.userId, r.avatar)}
+                        alt={r.name}
+                        className="w-6 h-6 rounded-full mr-1"
+                        />
+                        <span className="font-bold">{r.name}</span>
+                    </li>
+                    ))}
+                </ul>
+                </div>
+            )}
         </div>
     );
 };

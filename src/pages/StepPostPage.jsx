@@ -58,37 +58,57 @@ const StepPostPage = ({ post }) => {
     // 포켓베이스
     const handleSubmitPost = async () => {
         try {
-            const form = new FormData();
-            form.append("title", formData.title);
-            form.append("description", formData.description);
-            form.append("location", formData.location);
-            form.append("date", formData.date);
-            form.append("timeStart", formData.timeStart);
-            form.append("timeEnd", formData.timeEnd);
-            form.append("capacity", formData.capacity);
-            form.append("fee", formData.fee);
-            form.append("user", user.id); // 현재 로그인 유저 ID
-            form.append("editor", user.name); // ✅ editor 추가
-    
-            // category 배열은 문자열로 변환 (예: "중식,일식")
-            form.append("category", formData.category.join(","));
-    
-            // 이미지 파일 업로드
-            postImgs.forEach((file) => {
-                if (file instanceof File) {
-                    form.append("images", file);
-                }
-            });
-    
-            await pb.collection("post").create(form);
-            localStorage.removeItem(STORAGE_KEY);
-            alert("게시물이 등록되었습니다!");
-            navigate("/post");
+          const form = new FormData();
+      
+          // 필수 텍스트 필드
+          form.append("title", formData.title.trim());
+          form.append("description", formData.description.trim());
+          form.append("location", formData.location.trim());
+          form.append("date", formData.date);
+          form.append("timeStart", formData.timeStart);
+          form.append("timeEnd", formData.timeEnd);
+      
+          // 숫자 필드 → 문자열로 변환
+          form.append("capacity", String(Number(formData.capacity)));
+          form.append("fee", String(Number(formData.fee)));
+      
+          // 유저 정보
+          if (!user || !user.id || !user.name) {
+            alert("로그인이 필요합니다.");
+            return;
+          }
+          form.append("user", user.id);
+          form.append("editor", user.name);
+      
+          // 카테고리 문자열
+          const categoryStr = formData.category.join(",");
+          if (!categoryStr) {
+            alert("카테고리를 선택해주세요.");
+            return;
+          }
+          form.append("category", categoryStr);
+      
+          // 이미지 1개 이상 필수
+          const validFiles = postImgs.filter(file => file instanceof File);
+          if (validFiles.length === 0) {
+            alert("이미지를 1개 이상 업로드해주세요.");
+            return;
+          }
+      
+          validFiles.forEach((file) => {
+            form.append("images", file);
+          });
+      
+          await pb.collection("post").create(form);
+          localStorage.removeItem(STORAGE_KEY);
+          alert("게시물이 등록되었습니다!");
+          navigate("/post");
         } catch (err) {
-            console.error("게시물 등록 실패", err);
-            alert("게시물 등록에 실패했습니다. 다시 시도해주세요.");
+          console.error("게시물 등록 실패", err);
+          alert("게시물 등록에 실패했습니다. 다시 시도해주세요.");
         }
     };
+      
 
     const handleManualSave = () => {
         const serializedImages = postImgs.map(file => file.name);
@@ -156,24 +176,19 @@ const StepPostPage = ({ post }) => {
         });
     };
 
-    const uploadFiles = async (e) => {
+      const uploadFiles = async (e) => {
         const files = Array.from(e.target.files);
       
-        if ((post?.field?.length || 0) + postImgs.length + files.length > 3) {
+        if ((post?.images?.length || 0) + postImgs.length + files.length > 3) {
           alert("업로드 이미지 개수를 초과하였습니다. (최대 3개)");
           return;
         }
       
-        try {
-          const compressedFiles = await compressImages(files); // ⬅️ 이미지 압축 훅 사용
-      
-          const newPreviewImgs = compressedFiles.map(file => URL.createObjectURL(file));
-          setPostImgs(prev => [...prev, ...compressedFiles].slice(0, 3));
-          setPreviewImgs(prev => [...prev, ...newPreviewImgs].slice(0, 3));
-        } catch (err) {
-          alert("이미지 압축 중 문제가 발생했습니다.");
-        }
+        const newPreviewImgs = files.map((file) => URL.createObjectURL(file));
+        setPostImgs((prev) => [...prev, ...files].slice(0, 3));
+        setPreviewImgs((prev) => [...prev, ...newPreviewImgs].slice(0, 3));
       };
+      
 
     const removePreviewImage = (index) => {
         setPreviewImgs(prev => prev.filter((_, i) => i !== index));
