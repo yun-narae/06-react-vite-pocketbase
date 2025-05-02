@@ -80,7 +80,7 @@ function App() {
     return (
         <UserProvider>
             {/* ✅ `user`를 전역에서 관리하도록 설정 */}
-            <Router basename={process.env.VITE_PUBLIC_URL}>
+            <Router>
               <Suspense fallback={<div className="p-4 text-center">페이지 로딩 중...</div>}>
                 <Header 
                   isLoggedIn={isLoggedIn} 
